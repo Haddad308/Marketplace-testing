@@ -10,7 +10,7 @@ import {
 } from 'firebase/auth';
 import { createContext, Dispatch, SetStateAction, useContext, useEffect, useState, type ReactNode } from 'react';
 import { auth } from '../firebase/firabase';
-import { ensureUserInFirestore, getUserFromFirestore } from '../firebase/firestore';
+// import { ensureUserInFirestore, getUserFromFirestore } from '../firebase/firestore';
 
 interface AuthContextType {
 	user: User | null;
@@ -37,14 +37,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 	useEffect(() => {
 		const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
 			if (firebaseUser) {
-				const maybeNewUser = await ensureUserInFirestore(firebaseUser);
-
-				if (maybeNewUser) {
-					setUser(maybeNewUser);
-				} else {
-					const appUser = await getUserFromFirestore(firebaseUser);
-					setUser(appUser);
-				}
+				// const maybeNewUser = await ensureUserInFirestore(firebaseUser);
+				// if (maybeNewUser) {
+				// 	setUser(maybeNewUser);
+				// } else {
+				// 	const appUser = await getUserFromFirestore(firebaseUser);
+				// 	setUser(appUser);
+				// }
 			} else {
 				setUser(null);
 			}
