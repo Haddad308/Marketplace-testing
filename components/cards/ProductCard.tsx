@@ -1,26 +1,10 @@
 'use client';
 
+import { Product } from '@/types';
 import { Heart, MapPin, Star } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { Button } from '../ui/button';
-
-interface Product {
-	id: string;
-	title: string;
-	business: string;
-	category: string;
-	image: string;
-	originalPrice: number;
-	discountedPrice: number;
-	discountPercentage: number;
-	rating: number;
-	reviewCount: number;
-	location: string;
-	distance: string;
-	isPopular: boolean;
-	badge?: string;
-}
 
 interface ProductCardProps {
 	product: Product;
@@ -42,6 +26,7 @@ export default function ProductCard({ product, isFavorite, onToggleFavorite }: P
 		reviewCount,
 		location,
 		distance,
+		redirectLink,
 		badge,
 	} = product;
 
@@ -83,7 +68,7 @@ export default function ProductCard({ product, isFavorite, onToggleFavorite }: P
 				</div>
 
 				{/* Title */}
-				<Link href={`/deal/${id}`}>
+				<Link href={`/product/${id}`}>
 					<h3 className="mb-3 line-clamp-2 cursor-pointer font-semibold text-gray-900 transition-colors duration-200 hover:text-purple-600">
 						{title}
 					</h3>
@@ -118,7 +103,7 @@ export default function ProductCard({ product, isFavorite, onToggleFavorite }: P
 				</div>
 
 				{/* CTA Button */}
-				<Link href={`/deal/${id}`}>
+				<Link href={redirectLink || `/product/${id}`}>
 					<Button className="mt-4 w-full rounded-lg bg-purple-600 py-2.5 font-medium text-white transition-colors duration-200 hover:bg-purple-700">
 						View Deal
 					</Button>
