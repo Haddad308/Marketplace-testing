@@ -11,6 +11,41 @@ export async function getProducts() {
 	}
 }
 
+export async function getPopularProducts(limit: number = 3) {
+	try {
+		const productsRef = collection(db, 'products');
+		const snapshot = await getDocs(productsRef);
+		const products = snapshot.docs
+			.map((doc) => ({ id: doc.id, ...(doc.data() as Omit<Product, 'id'>) }))
+			// .sort((a, b) => (b.popularity ?? 0) - (a.popularity ?? 0))
+			.slice(0, limit);
+		return products;
+	} catch (error) {
+		throw new Error(`Error fetching popular products: ${error}`);
+	}
+}
+
+export async function searchProducts(query: string, limit = 9) {
+	try {
+		if (!query.trim()) {
+			return getPopularProducts(limit);
+		}
+
+		const productsRef = collection(db, 'products');
+		const snapshot = await getDocs(productsRef);
+		const lowerQuery = query.toLowerCase();
+		const products = snapshot.docs
+			.map((doc) => ({ id: doc.id, ...(doc.data() as Omit<Product, 'id'>) }))
+			.filter(
+				(product) =>
+					product.title?.toLowerCase().includes(lowerQuery) || product.business?.toLowerCase().includes(lowerQuery)
+			);
+		return products;
+	} catch (error) {
+		throw new Error(`Error searching products: ${error}`);
+	}
+}
+
 export async function uploadProduct(product: Product) {
 	try {
 		await addDoc(collection(db, 'products'), product);
