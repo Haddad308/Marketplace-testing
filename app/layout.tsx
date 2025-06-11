@@ -8,8 +8,9 @@ import './globals.css';
 const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
-	title: 'OmniSearch - Search Across Platforms',
-	description: 'Search Google, YouTube, and Reddit all in one place',
+	title: 'Merchify - Discover & Shop Services',
+	description:
+		'Browse, wishlist, and shop the best service deals from top sellers. Affiliate links, no direct purchases. Sellers can add and promote their services easily.',
 };
 
 export default function RootLayout({
@@ -23,7 +24,7 @@ export default function RootLayout({
 				<meta name="theme-color" content="#0f172a" />
 			</head>
 			<body className={inter.className}>
-				<ThemeProvider attribute="class" defaultTheme="dark" enableSystem disableTransitionOnChange>
+				<ThemeProvider attribute="class" defaultTheme="light" enableSystem disableTransitionOnChange>
 					<FirebaseProvider>{children}</FirebaseProvider>
 				</ThemeProvider>
 			</body>
