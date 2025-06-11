@@ -1,15 +1,14 @@
-'use client';
-
+import SectionWrapper from '@/components/SectionWrapper';
+import ProductsSection from '@/sections/ProductsSection';
 import Navbar from '../sections/Navbar';
 
 export default function Page() {
 	return (
-		<div>
+		<main className="container mx-auto">
 			<Navbar />
-			<main className="container mx-auto py-8">
-				<h1 className="mb-4 text-2xl font-bold">Welcome to DealSpot</h1>
-				<p className="text-gray-700">Find the best deals and discounts near you.</p>
-			</main>
-		</div>
+			<SectionWrapper>
+				<ProductsSection />
+			</SectionWrapper>
+		</main>
 	);
 }
