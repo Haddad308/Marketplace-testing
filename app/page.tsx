@@ -4,11 +4,13 @@ import Navbar from '../sections/Navbar';
 
 export default function Page() {
 	return (
-		<main className="container mx-auto">
+		<main>
 			<Navbar />
-			<SectionWrapper>
-				<ProductsSection />
-			</SectionWrapper>
+			<div className="container mx-auto">
+				<SectionWrapper>
+					<ProductsSection />
+				</SectionWrapper>
+			</div>
 		</main>
 	);
 }

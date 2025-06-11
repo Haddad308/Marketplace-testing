@@ -33,8 +33,8 @@ export default function Navbar() {
 						<div className="text-2xl font-bold text-purple-600">DEALSPOT</div>
 					</Link>
 
-					{/* Search Bar */}
-					<div className="mx-8 max-w-2xl flex-1">
+					{/* Search Bar For medium to large screens */}
+					<div className="mx-8 hidden max-w-2xl flex-1 md:block">
 						<div className="relative">
 							<div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
 								<Search className="h-5 w-5 text-gray-400" />
@@ -63,11 +63,27 @@ export default function Navbar() {
 				</div>
 			</div>
 
+			{/* Search Bar For small to medium screens */}
+			<div className="mx-4 mb-2 max-w-2xl flex-1 md:hidden">
+				<div className="relative">
+					<div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+						<Search className="h-5 w-5 text-gray-400" />
+					</div>
+					<Input
+						type="text"
+						placeholder="Search for deals"
+						value={searchQuery}
+						onChange={(e) => setSearchQuery(e.target.value)}
+						className="block w-full rounded-full border border-gray-300 bg-white py-2 pr-3 pl-10 leading-5 placeholder-gray-500 focus:border-transparent focus:placeholder-gray-400 focus:ring-2 focus:ring-purple-500 focus:outline-none"
+					/>
+				</div>
+			</div>
+
 			{/* Categories Navigation */}
 			<div className="border-t border-gray-200 bg-gray-50">
 				<div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
 					<div className="flex h-12 items-center justify-between overflow-x-auto">
-						<nav className="flex space-x-8">
+						<nav className="flex w-full justify-between gap-x-8">
 							{categories.map((category) => (
 								<Link
 									key={category.name}
