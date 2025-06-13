@@ -7,6 +7,9 @@ import { useState } from 'react';
 import { SignInModal } from '@/components/modals/SignInModal';
 import { SearchDropdown } from '@/components/SearchDropdown';
 import { Button } from '@/components/ui/button';
+import { LoadingButton } from '@/components/ui/loading-button';
+import { UserDropdown } from '@/components/UserDropdown';
+import { useAuth } from '@/contexts/auth-context';
 
 const categories = [
 	{ name: 'Beauty & Spas', icon: '💄' },
@@ -21,6 +24,7 @@ const categories = [
 ];
 
 export default function Navbar() {
+	const { user, loading } = useAuth();
 	const [searchQuery, setSearchQuery] = useState('');
 
 	return (
@@ -46,8 +50,7 @@ export default function Navbar() {
 							<span className="sr-only">Wishlist</span>
 						</Button>
 
-						{/* Sign In */}
-						<SignInModal />
+						{loading ? <LoadingButton /> : user ? <UserDropdown user={user} /> : <SignInModal />}
 					</div>
 				</div>
 			</div>

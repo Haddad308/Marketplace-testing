@@ -1,12 +1,12 @@
 'use client';
 
-import { User } from '@/types';
 import {
 	signOut as firebaseSignOut,
 	GoogleAuthProvider,
 	onAuthStateChanged,
 	signInWithEmailAndPassword,
 	signInWithPopup,
+	User,
 } from 'firebase/auth';
 import { createContext, Dispatch, SetStateAction, useContext, useEffect, useState, type ReactNode } from 'react';
 import { auth } from '../firebase/firabase';
@@ -15,6 +15,8 @@ import { auth } from '../firebase/firabase';
 interface AuthContextType {
 	user: User | null;
 	setUser: Dispatch<SetStateAction<User | null>>;
+	loading: boolean;
+	setLoading: Dispatch<SetStateAction<boolean>>;
 	signIn: (email: string, password: string) => Promise<void>;
 	signInWithGoogle: () => Promise<void>;
 	signOut: () => Promise<void>;
@@ -35,18 +37,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 	const [loading, setLoading] = useState(true);
 
 	useEffect(() => {
-		const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
-			if (firebaseUser) {
-				// const maybeNewUser = await ensureUserInFirestore(firebaseUser);
-				// if (maybeNewUser) {
-				// 	setUser(maybeNewUser);
-				// } else {
-				// 	const appUser = await getUserFromFirestore(firebaseUser);
-				// 	setUser(appUser);
-				// }
-			} else {
-				setUser(null);
-			}
+		const unsubscribe = onAuthStateChanged(auth, (user) => {
+			setUser(user);
 			setLoading(false);
 		});
 
@@ -69,6 +61,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 	const value = {
 		user,
 		setUser,
+		loading,
+		setLoading,
 		signIn,
 		signInWithGoogle,
 		signOut,
