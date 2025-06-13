@@ -82,7 +82,7 @@ export function SignInModal() {
 					<ChevronDown className="h-4 w-4" />
 				</Button>
 			</DropdownMenuTrigger>
-			<DropdownMenuContent align="end" className="w-96 bg-white p-0">
+			<DropdownMenuContent align="end" className="w-96 border-none bg-white p-0">
 				<div className="p-6">
 					{step === 'email' && (
 						<>
