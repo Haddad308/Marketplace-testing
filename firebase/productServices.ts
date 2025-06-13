@@ -1,5 +1,5 @@
 import { Product } from '@/types';
-import { addDoc, collection, getDocs } from 'firebase/firestore';
+import { addDoc, collection, doc, getDoc, getDocs } from 'firebase/firestore';
 import { db } from './firabase';
 
 export async function getProducts() {
@@ -8,6 +8,24 @@ export async function getProducts() {
 		return snapshot.docs.map((doc) => ({ id: doc.id, ...(doc.data() as Omit<Product, 'id'>) }));
 	} catch (error) {
 		throw new Error(`Error fetching products: ${error}`);
+	}
+}
+
+export async function getProductById(id: string) {
+	try {
+		const productRef = doc(db, 'products', id);
+		const productSnap = await getDoc(productRef);
+
+		if (!productSnap.exists()) {
+			return null;
+		}
+
+		return {
+			id: productSnap.id,
+			...productSnap.data(),
+		} as Product;
+	} catch (error) {
+		throw new Error(`Error fetching product: ${error}`);
 	}
 }
 
