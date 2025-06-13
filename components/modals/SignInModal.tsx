@@ -67,7 +67,9 @@ export function SignInModal() {
 	};
 
 	const handleSocialLogin = (provider: 'Facebook' | 'Google') => {
-		provider === 'Google' && signInWithGoogle();
+		if (provider === 'Google') {
+			signInWithGoogle();
+		}
 	};
 
 	return (
