@@ -16,7 +16,6 @@ export function SearchDropdown() {
 	const [searchQuery, setSearchQuery] = useState('');
 	const [products, setProducts] = useState<Product[]>([]);
 	const [isLoading, setIsLoading] = useState(false);
-	const [favorites, setFavorites] = useState<string[]>([]);
 	const debouncedSearchQuery = useDebounce(searchQuery, 300);
 	const dropdownRef = useRef<HTMLDivElement>(null);
 	const inputRef = useRef<HTMLInputElement>(null);
@@ -85,10 +84,6 @@ export function SearchDropdown() {
 	const handleClearSearch = () => {
 		setSearchQuery('');
 		inputRef.current?.focus();
-	};
-
-	const toggleFavorite = (productId: string) => {
-		setFavorites((prev) => (prev.includes(productId) ? prev.filter((id) => id !== productId) : [...prev, productId]));
 	};
 
 	return (
