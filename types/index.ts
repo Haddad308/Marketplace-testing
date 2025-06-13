@@ -1,3 +1,5 @@
+import { User as FirebaseAuthUser } from 'firebase/auth';
+
 export type Product = {
 	id: string;
 	title: string;
@@ -15,3 +17,10 @@ export type Product = {
 	redirectLink: string;
 	badge?: string;
 };
+
+export interface User extends FirebaseAuthUser {
+	freeSearchCount: number;
+	giminiApiKey: string | undefined;
+	createdAt: Date;
+	updatedAt: Date;
+}

@@ -9,10 +9,12 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { useAuth } from '@/contexts/auth-context';
 
 type AuthStep = 'email' | 'signin' | 'signup';
 
 export function SignInModal() {
+	const { signInWithGoogle } = useAuth();
 	const [isOpen, setIsOpen] = useState(false);
 	const [step, setStep] = useState<AuthStep>('email');
 	const [email, setEmail] = useState('');
@@ -64,9 +66,8 @@ export function SignInModal() {
 		setAgreeToEmails(false);
 	};
 
-	const handleSocialLogin = (provider: string) => {
-		console.log(`Login with ${provider}`);
-		// Implement social login
+	const handleSocialLogin = (provider: 'Facebook' | 'Google') => {
+		provider === 'Google' && signInWithGoogle();
 	};
 
 	return (

@@ -1,6 +1,7 @@
 'use client';
 
 import {
+	FacebookAuthProvider,
 	signOut as firebaseSignOut,
 	GoogleAuthProvider,
 	onAuthStateChanged,
@@ -18,6 +19,7 @@ interface AuthContextType {
 	loading: boolean;
 	setLoading: Dispatch<SetStateAction<boolean>>;
 	signIn: (email: string, password: string) => Promise<void>;
+	signInWithFacebook: () => Promise<void>;
 	signInWithGoogle: () => Promise<void>;
 	signOut: () => Promise<void>;
 }
@@ -49,6 +51,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 		await signInWithEmailAndPassword(auth, email, password);
 	};
 
+	const signInWithFacebook = async () => {
+		const provider = new FacebookAuthProvider();
+		await signInWithPopup(auth, provider);
+	};
+
 	const signInWithGoogle = async () => {
 		const provider = new GoogleAuthProvider();
 		await signInWithPopup(auth, provider);
@@ -64,6 +71,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 		loading,
 		setLoading,
 		signIn,
+		signInWithFacebook,
 		signInWithGoogle,
 		signOut,
 	};

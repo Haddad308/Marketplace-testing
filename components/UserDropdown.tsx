@@ -31,7 +31,6 @@ export function UserDropdown({ user, wishlistCount = 0 }: UserDropdownProps) {
 	const handleSignOut = async () => {
 		try {
 			await signOut(auth);
-			// Redirect or update UI state after sign out
 		} catch (error) {
 			console.error('Error signing out:', error);
 		}
@@ -63,7 +62,7 @@ export function UserDropdown({ user, wishlistCount = 0 }: UserDropdownProps) {
 					<span className="hidden md:inline">{user.displayName || user.email?.split('@')[0] || 'User'}</span>
 				</Button>
 			</DropdownMenuTrigger>
-			<DropdownMenuContent align="end" className="w-64 p-0">
+			<DropdownMenuContent align="end" className="w-72 border-none bg-white p-2">
 				<div className="p-4">
 					<div className="mb-2 text-lg font-semibold">Hi, {user.displayName || user.email?.split('@')[0] || 'User'}!</div>
 					<div className="flex items-center gap-3">
@@ -78,7 +77,7 @@ export function UserDropdown({ user, wishlistCount = 0 }: UserDropdownProps) {
 				<DropdownMenuSeparator />
 
 				<Link href="/wishlist" className="block">
-					<DropdownMenuItem className="flex cursor-pointer items-center justify-between p-3 text-base">
+					<DropdownMenuItem className="flex cursor-pointer items-center justify-between p-3 text-base hover:bg-purple-200">
 						<div className="flex items-center">
 							<Heart className="mr-3 h-5 w-5" />
 							<span>My Wishlist</span>
@@ -88,7 +87,7 @@ export function UserDropdown({ user, wishlistCount = 0 }: UserDropdownProps) {
 				</Link>
 
 				<Link href="/account" className="block">
-					<DropdownMenuItem className="flex cursor-pointer items-center p-3 text-base">
+					<DropdownMenuItem className="flex cursor-pointer items-center p-3 text-base hover:bg-purple-200">
 						<User className="mr-3 h-5 w-5" />
 						<span>Account Settings</span>
 					</DropdownMenuItem>
@@ -97,7 +96,7 @@ export function UserDropdown({ user, wishlistCount = 0 }: UserDropdownProps) {
 				<DropdownMenuSeparator />
 
 				<DropdownMenuItem
-					className="flex cursor-pointer items-center p-3 text-base text-red-600 hover:text-red-700"
+					className="flex cursor-pointer items-center p-3 text-base text-red-600 hover:bg-red-200 hover:text-red-700"
 					onClick={handleSignOut}
 				>
 					<LogOut className="mr-3 h-5 w-5" />
