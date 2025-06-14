@@ -1,6 +1,7 @@
 'use client';
 
 import {
+	createUserWithEmailAndPassword,
 	FacebookAuthProvider,
 	signOut as firebaseSignOut,
 	GoogleAuthProvider,
@@ -11,13 +12,13 @@ import {
 } from 'firebase/auth';
 import { createContext, Dispatch, SetStateAction, useContext, useEffect, useState, type ReactNode } from 'react';
 import { auth } from '../firebase/firabase';
-// import { ensureUserInFirestore, getUserFromFirestore } from '../firebase/firestore';
 
 interface AuthContextType {
 	user: User | null;
 	setUser: Dispatch<SetStateAction<User | null>>;
 	loading: boolean;
 	setLoading: Dispatch<SetStateAction<boolean>>;
+	signUp: (email: string, password: string) => Promise<void>;
 	signIn: (email: string, password: string) => Promise<void>;
 	signInWithFacebook: () => Promise<void>;
 	signInWithGoogle: () => Promise<void>;
@@ -47,6 +48,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 		return () => unsubscribe();
 	}, []);
 
+	const signUp = async (email: string, password: string) => {
+		await createUserWithEmailAndPassword(auth, email, password);
+	};
+
 	const signIn = async (email: string, password: string) => {
 		await signInWithEmailAndPassword(auth, email, password);
 	};
@@ -70,6 +75,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 		setUser,
 		loading,
 		setLoading,
+		signUp,
 		signIn,
 		signInWithFacebook,
 		signInWithGoogle,

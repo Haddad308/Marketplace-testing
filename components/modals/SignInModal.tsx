@@ -13,63 +13,166 @@ import { useAuth } from '@/contexts/auth-context';
 
 type AuthStep = 'email' | 'signin' | 'signup';
 
+type ValidationError = {
+	email?: string;
+	password?: string;
+	name?: string;
+	response?: string;
+};
+
+type Touched = {
+	email?: boolean;
+	password?: boolean;
+	name?: boolean;
+	response?: boolean;
+};
+
 export function SignInModal() {
-	const { signInWithGoogle } = useAuth();
+	const { signUp, signIn, signInWithGoogle } = useAuth();
+
 	const [isOpen, setIsOpen] = useState(false);
 	const [step, setStep] = useState<AuthStep>('email');
-	const [email, setEmail] = useState('');
-	const [password, setPassword] = useState('');
-	const [name, setName] = useState('');
+	const [formData, setFormData] = useState({
+		email: '',
+		password: '',
+		name: '',
+		agreeToEmails: false,
+	});
 	const [showPassword, setShowPassword] = useState(false);
-	const [agreeToEmails, setAgreeToEmails] = useState(false);
 	const [isLoading, setIsLoading] = useState(false);
+	const [error, setError] = useState<ValidationError | null>({
+		email: 'Email is required.',
+		password: 'Password is required.',
+		name: 'Name is required.',
+		response: undefined,
+	});
+	const [touched, setTouched] = useState<Touched | null>(null);
+
+	const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+		const { name, value, type, checked } = e.target;
+
+		// Always update the form data first
+		if (type === 'checkbox') {
+			setFormData((prev) => ({ ...prev, [name]: checked }));
+		} else {
+			setFormData((prev) => ({ ...prev, [name]: value }));
+		}
+
+		const fieldError: ValidationError = {};
+
+		if (name === 'email') {
+			if (!value) {
+				fieldError.email = 'Email is required.';
+			} else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
+				fieldError.email = 'Enter a valid email address.';
+			}
+		}
+
+		if (name === 'password') {
+			if (!value) {
+				fieldError.password = 'Password is required.';
+			} else if (value.length < 6) {
+				fieldError.password = 'Password must be at least 6 characters.';
+			}
+		}
+
+		if (name === 'name') {
+			if (!value.trim()) {
+				fieldError.name = 'Name is required.';
+			}
+		}
+
+		if (Object.keys(fieldError).length > 0) {
+			setError((prev) => ({ ...prev, ...fieldError }));
+		} else {
+			setError((prev) => ({ ...prev, [name]: '' }));
+		}
+	};
+
+	const handleTouched = (fieldName: string) => {
+		setTouched((prev) => ({ ...prev, [fieldName]: true }));
+	};
 
 	const handleEmailContinue = async () => {
-		if (!email) return;
-
 		setIsLoading(true);
-		// Simulate API call to check if user exists
-		await new Promise((resolve) => setTimeout(resolve, 1000));
+		try {
+			const response = await fetch('/api/check-emails', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+				},
+				body: JSON.stringify({ email: formData.email }),
+			});
 
-		// Mock logic: if email contains "existing", show signin, else signup
-		const userExists = email.includes('existing');
-		setStep(userExists ? 'signin' : 'signup');
-		setIsLoading(false);
+			const data = await response.json();
+			const exists = data.exists;
+			setStep(exists ? 'signin' : 'signup');
+			setTouched(null);
+			setError((prev) => ({ ...prev, response: '' }));
+		} catch (err: unknown) {
+			const message = err instanceof Error ? err.message : 'Something went wrong.';
+			setError({ response: message });
+		} finally {
+			setIsLoading(false);
+		}
 	};
 
 	const handleSignIn = async () => {
-		if (!password) return;
 		setIsLoading(true);
-		// Simulate sign in
-		await new Promise((resolve) => setTimeout(resolve, 1000));
-		setIsLoading(false);
-		setIsOpen(false);
-		// Handle successful sign in
+		try {
+			await signIn(formData.email, formData.password);
+			setIsOpen(false);
+			setTouched(null);
+		} catch (err: unknown) {
+			if (err instanceof Error && err.message.includes('auth/invalid-credential')) {
+				setError({ response: 'Email and password do not match.' });
+			} else if (err instanceof Error) {
+				setError({ response: err.message });
+			} else {
+				setError({ response: 'Failed to sign in.' });
+			}
+		} finally {
+			setIsLoading(false);
+		}
 	};
 
 	const handleSignUp = async () => {
-		if (!name || !password) return;
 		setIsLoading(true);
-		// Simulate sign up
-		await new Promise((resolve) => setTimeout(resolve, 1000));
-		setIsLoading(false);
-		setIsOpen(false);
-		// Handle successful sign up
+		try {
+			await signUp(formData.email, formData.password);
+		} catch (err: unknown) {
+			if (err instanceof Error && err.message.includes('email-already-in-use')) {
+				setError({ response: 'This email is already in use.' });
+			} else if (err instanceof Error) {
+				setError({ response: err.message || 'Failed to sign up.' });
+			} else {
+				setError({ response: 'Failed to sign up.' });
+			}
+		} finally {
+			setIsLoading(false);
+		}
 	};
 
 	const resetForm = () => {
 		setStep('email');
-		setEmail('');
-		setPassword('');
-		setName('');
+		setFormData({ email: '', password: '', name: '', agreeToEmails: false });
 		setShowPassword(false);
-		setAgreeToEmails(false);
+		setError((prev) => ({ ...prev, email: 'Email is required.', response: '' }));
+		setTouched(null);
 	};
 
 	const handleSocialLogin = (provider: 'Facebook' | 'Google') => {
 		if (provider === 'Google') {
 			signInWithGoogle();
 		}
+	};
+
+	const renderError = (field: keyof ValidationError) => {
+		return touched?.[field] && error?.[field] ? <div className="mt-1 text-sm text-red-600">{error[field]}</div> : null;
+	};
+
+	const renderResponseError = () => {
+		return error?.response ? <div className="mt-3 text-center text-sm text-red-600">{error.response}</div> : null;
 	};
 
 	return (
@@ -88,114 +191,96 @@ export function SignInModal() {
 				<div className="p-6">
 					{step === 'email' && (
 						<>
-							<div className="mb-6 text-center">
-								<h2 className="mb-2 text-2xl font-bold text-gray-900">Welcome to DealSpot</h2>
-								<p className="text-gray-600">Access all DealSpot has to offer</p>
-							</div>
+							<h2 className="mb-2 text-center text-2xl font-bold text-gray-900">Welcome to DealSpot</h2>
+							<p className="mb-6 text-center text-gray-600">Access all DealSpot has to offer</p>
 
-							{/* Social Login Buttons */}
-							<div className="mb-6 space-y-3">
-								<Button
-									variant="outline"
-									className="flex w-full items-center justify-center space-x-3 border-gray-300 py-3 hover:bg-gray-50"
-									onClick={() => handleSocialLogin('Facebook')}
-								>
-									<FaFacebook className="h-5 w-5 text-blue-600" />
-									<span>Continue with Facebook</span>
-								</Button>
+							<Button
+								variant="outline"
+								className="mb-3 flex w-full items-center justify-center space-x-3 border-gray-300 py-3 hover:bg-gray-50"
+								onClick={() => handleSocialLogin('Facebook')}
+							>
+								<FaFacebook className="h-5 w-5 text-blue-600" />
+								<span>Continue with Facebook</span>
+							</Button>
 
-								<Button
-									variant="outline"
-									className="flex w-full items-center justify-center space-x-3 border-gray-300 py-3 hover:bg-gray-50"
-									onClick={() => handleSocialLogin('Google')}
-								>
-									<FaGoogle className="h-5 w-5 text-red-500" />
-									<span>Continue with Google</span>
-								</Button>
-							</div>
+							<Button
+								variant="outline"
+								className="mb-4 flex w-full items-center justify-center space-x-3 border-gray-300 py-3 hover:bg-gray-50"
+								onClick={() => handleSocialLogin('Google')}
+							>
+								<FaGoogle className="h-5 w-5 text-red-500" />
+								<span>Continue with Google</span>
+							</Button>
 
 							<div className="mb-4 text-center text-gray-500">Or sign in with email</div>
 
-							{/* Email Input */}
-							<div className="space-y-4">
-								<div>
-									<Input
-										type="email"
-										placeholder="Email"
-										value={email}
-										onChange={(e) => setEmail(e.target.value)}
-										className="w-full rounded-md border-gray-300 py-3"
-									/>
-								</div>
+							<Input
+								name="email"
+								type="email"
+								placeholder="Email"
+								value={formData.email}
+								onChange={handleInputChange}
+								className="w-full rounded-md border-gray-300 py-3"
+								onBlur={() => handleTouched('email')}
+							/>
+							{renderError('email')}
 
-								<Button
-									onClick={handleEmailContinue}
-									disabled={!email || isLoading}
-									className="w-full rounded-full bg-purple-600 py-3 font-medium text-white hover:bg-purple-700"
-								>
-									{isLoading ? 'Loading...' : 'Continue'}
-								</Button>
-							</div>
+							<Button
+								onClick={handleEmailContinue}
+								disabled={!touched?.email || !!error?.email || isLoading}
+								className="mt-4 w-full rounded-full bg-purple-600 py-3 font-medium text-white hover:bg-purple-700"
+							>
+								{isLoading ? 'Loading...' : 'Continue'}
+							</Button>
 
-							<div className="mt-4 text-center text-xs text-gray-500">
-								By clicking an option above, I agree to the{' '}
-								<a href="#" className="text-purple-600 hover:underline">
-									Terms and Conditions
-								</a>{' '}
-								and have read the{' '}
-								<a href="#" className="text-purple-600 hover:underline">
-									Privacy Statement
-								</a>
-								.
-							</div>
+							{renderResponseError()}
 						</>
 					)}
 
 					{step === 'signin' && (
 						<>
-							<div className="mb-6">
-								<div className="mb-4 flex items-center justify-between rounded-md bg-gray-100 p-3">
-									<span className="text-sm text-gray-700">{email}</span>
-									<Button variant="link" className="h-auto p-0 text-sm text-purple-600" onClick={resetForm}>
-										Change
-									</Button>
-								</div>
-							</div>
-
-							<div className="space-y-4">
-								<div>
-									<Label htmlFor="password" className="text-sm font-medium text-gray-700">
-										Password
-									</Label>
-									<div className="relative mt-1">
-										<Input
-											id="password"
-											type={showPassword ? 'text' : 'password'}
-											placeholder="Password"
-											value={password}
-											onChange={(e) => setPassword(e.target.value)}
-											className="w-full rounded-md border-gray-300 py-3 pr-10"
-										/>
-										<Button
-											type="button"
-											variant="ghost"
-											size="sm"
-											className="absolute top-1/2 right-2 h-auto -translate-y-1/2 transform p-1"
-											onClick={() => setShowPassword(!showPassword)}
-										>
-											{showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-										</Button>
-									</div>
-								</div>
-
-								<Button
-									onClick={handleSignIn}
-									disabled={!password || isLoading}
-									className="w-full rounded-full bg-purple-600 py-3 font-medium text-white hover:bg-purple-700"
-								>
-									{isLoading ? 'Signing In...' : 'Sign In'}
+							<div className="mb-4 flex items-center justify-between rounded-md bg-gray-100 p-3">
+								<span className="text-sm text-gray-700">{formData.email}</span>
+								<Button variant="link" className="h-auto p-0 text-sm text-purple-600" onClick={resetForm}>
+									Change
 								</Button>
 							</div>
+
+							<Label htmlFor="password" className="text-sm font-medium text-gray-700">
+								Password
+							</Label>
+							<div className="relative">
+								<Input
+									id="password"
+									name="password"
+									type={showPassword ? 'text' : 'password'}
+									placeholder="Password"
+									value={formData.password}
+									onChange={handleInputChange}
+									className="w-full rounded-md border-gray-300 py-3 pr-10"
+									onBlur={() => handleTouched('password')}
+								/>
+								<Button
+									type="button"
+									variant="ghost"
+									size="sm"
+									className="absolute top-1/2 right-2 h-auto -translate-y-1/2 transform p-1"
+									onClick={() => setShowPassword(!showPassword)}
+								>
+									{showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+								</Button>
+							</div>
+							{renderError('password')}
+
+							<Button
+								onClick={handleSignIn}
+								disabled={!formData.password || isLoading}
+								className="mt-4 w-full rounded-full bg-purple-600 py-3 font-medium text-white hover:bg-purple-700"
+							>
+								{isLoading ? 'Signing In...' : 'Sign In'}
+							</Button>
+
+							{renderResponseError()}
 
 							<div className="mt-4 text-center">
 								<Button variant="link" className="text-sm text-purple-600" onClick={resetForm}>
@@ -207,87 +292,74 @@ export function SignInModal() {
 
 					{step === 'signup' && (
 						<>
-							<div className="mb-6">
-								<div className="mb-4 flex items-center justify-between rounded-md bg-gray-100 p-3">
-									<span className="text-sm text-gray-700">{email}</span>
-									<Button variant="link" className="h-auto p-0 text-sm text-purple-600" onClick={resetForm}>
-										Change
-									</Button>
-								</div>
-							</div>
-
-							<div className="space-y-4">
-								<div>
-									<Label htmlFor="name" className="text-sm font-medium text-gray-700">
-										Your name
-									</Label>
-									<Input
-										id="name"
-										type="text"
-										placeholder="Name"
-										value={name}
-										onChange={(e) => setName(e.target.value)}
-										className="mt-1 w-full rounded-md border-gray-300 py-3"
-									/>
-								</div>
-
-								<div>
-									<Label htmlFor="signup-password" className="text-sm font-medium text-gray-700">
-										Create a password
-									</Label>
-									<div className="relative mt-1">
-										<Input
-											id="signup-password"
-											type={showPassword ? 'text' : 'password'}
-											placeholder="Password"
-											value={password}
-											onChange={(e) => setPassword(e.target.value)}
-											className="w-full rounded-md border-gray-300 py-3 pr-10"
-										/>
-										<Button
-											type="button"
-											variant="ghost"
-											size="sm"
-											className="absolute top-1/2 right-2 h-auto -translate-y-1/2 transform p-1"
-											onClick={() => setShowPassword(!showPassword)}
-										>
-											{showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-										</Button>
-									</div>
-								</div>
-
-								<div className="flex items-start space-x-2">
-									<Checkbox
-										id="emails"
-										checked={agreeToEmails}
-										onCheckedChange={(checked) => setAgreeToEmails(checked as boolean)}
-										className="mt-1"
-									/>
-									<Label htmlFor="emails" className="text-sm leading-5 text-gray-700">
-										Yes, I want to save money by receiving personalized DealSpot emails with awesome deals.
-									</Label>
-								</div>
-
-								<Button
-									onClick={handleSignUp}
-									disabled={!name || !password || isLoading}
-									className="w-full rounded-full bg-purple-600 py-3 font-medium text-white hover:bg-purple-700"
-								>
-									{isLoading ? 'Creating Account...' : 'Sign Up'}
+							<div className="mb-4 flex items-center justify-between rounded-md bg-gray-100 p-3">
+								<span className="text-sm text-gray-700">{formData.email}</span>
+								<Button variant="link" className="h-auto p-0 text-sm text-purple-600" onClick={resetForm}>
+									Change
 								</Button>
 							</div>
 
-							<div className="mt-4 text-center text-xs text-gray-500">
-								By clicking an option above, I agree to the{' '}
-								<a href="#" className="text-purple-600 hover:underline">
-									Terms and Conditions
-								</a>{' '}
-								and have read the{' '}
-								<a href="#" className="text-purple-600 hover:underline">
-									Privacy Statement
-								</a>
-								.
+							<Label htmlFor="name" className="text-sm font-medium text-gray-700">
+								Your name
+							</Label>
+							<Input
+								id="name"
+								name="name"
+								type="text"
+								placeholder="Name"
+								value={formData.name}
+								onChange={handleInputChange}
+								className="mt-1 w-full rounded-md border-gray-300 py-3"
+								onBlur={() => handleTouched('name')}
+							/>
+							{renderError('name')}
+
+							<Label htmlFor="signup-password" className="text-sm font-medium text-gray-700">
+								Create a password
+							</Label>
+							<div className="relative">
+								<Input
+									id="signup-password"
+									name="password"
+									type={showPassword ? 'text' : 'password'}
+									placeholder="Password"
+									value={formData.password}
+									onChange={handleInputChange}
+									className="w-full rounded-md border-gray-300 py-3 pr-10"
+									onBlur={() => handleTouched('password')}
+								/>
+								<Button
+									type="button"
+									variant="ghost"
+									size="sm"
+									className="absolute top-1/2 right-2 h-auto -translate-y-1/2 transform p-1"
+									onClick={() => setShowPassword(!showPassword)}
+								>
+									{showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+								</Button>
 							</div>
+							{renderError('password')}
+
+							<div className="mt-3 flex items-start space-x-2">
+								<Checkbox
+									id="emails"
+									checked={formData.agreeToEmails}
+									onCheckedChange={(checked) => setFormData((prev) => ({ ...prev, agreeToEmails: checked as boolean }))}
+								/>
+								<Label htmlFor="emails" className="text-sm leading-5 text-gray-700">
+									Yes, I want to save money by receiving personalized DealSpot emails with awesome deals.
+								</Label>
+							</div>
+
+							<Button
+								onClick={handleSignUp}
+								disabled={!formData.name || !formData.password || isLoading}
+								className="mt-4 w-full rounded-full bg-purple-600 py-3 font-medium text-white hover:bg-purple-700"
+							>
+								{isLoading ? 'Creating Account...' : 'Sign Up'}
+							</Button>
+
+							{renderResponseError()}
 						</>
 					)}
 				</div>
