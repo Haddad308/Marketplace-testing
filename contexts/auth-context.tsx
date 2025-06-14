@@ -1,5 +1,7 @@
 'use client';
 
+import { ensureUserInFirestore, getUserWishlist } from '@/firebase/userServices';
+import { User } from '@/types';
 import {
 	createUserWithEmailAndPassword,
 	FacebookAuthProvider,
@@ -8,7 +10,6 @@ import {
 	onAuthStateChanged,
 	signInWithEmailAndPassword,
 	signInWithPopup,
-	User,
 } from 'firebase/auth';
 import { createContext, Dispatch, SetStateAction, useContext, useEffect, useState, type ReactNode } from 'react';
 import { auth } from '../firebase/firabase';
@@ -40,8 +41,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 	const [loading, setLoading] = useState(true);
 
 	useEffect(() => {
-		const unsubscribe = onAuthStateChanged(auth, (user) => {
-			setUser(user);
+		const unsubscribe = onAuthStateChanged(auth, async (user) => {
+			let wishlist;
+			if (user) {
+				await ensureUserInFirestore(user);
+				wishlist = await getUserWishlist(user.uid);
+			}
+			if (!wishlist) {
+				setUser(user);
+			} else {
+				setUser({ ...user, wishlist: wishlist } as User);
+			}
 			setLoading(false);
 		});
 

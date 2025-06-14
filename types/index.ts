@@ -19,8 +19,5 @@ export type Product = {
 };
 
 export interface User extends FirebaseAuthUser {
-	freeSearchCount: number;
-	giminiApiKey: string | undefined;
-	createdAt: Date;
-	updatedAt: Date;
+	wishlist?: string[];
 }

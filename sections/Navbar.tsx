@@ -8,6 +8,7 @@ import { SearchDropdown } from '@/components/SearchDropdown';
 import { Button } from '@/components/ui/button';
 import { LoadingButton } from '@/components/ui/loading-button';
 import { UserDropdown } from '@/components/UserDropdown';
+import WishlistBadge from '@/components/WishlistBadge';
 import { useAuth } from '@/contexts/auth-context';
 
 const categories = [
@@ -43,10 +44,13 @@ export default function Navbar() {
 					{/* Right Side Actions */}
 					<div className="flex items-center space-x-4">
 						{/* Wishlist */}
-						<Button variant="ghost" size="sm" className="text-gray-600 hover:text-purple-600">
-							<Heart className="h-5 w-5" />
-							<span className="sr-only">Wishlist</span>
-						</Button>
+						<Link href="/wishlist">
+							<Button variant="ghost" size="sm" className="relative text-gray-600 hover:text-purple-600">
+								<Heart className="h-5 w-5" />
+								<WishlistBadge />
+								<span className="sr-only">Wishlist</span>
+							</Button>
+						</Link>
 
 						{loading ? <LoadingButton /> : user ? <UserDropdown user={user} /> : <SignInModal />}
 					</div>

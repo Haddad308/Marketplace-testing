@@ -1,16 +1,22 @@
 'use client';
 
 import ProductCard from '@/components/cards/ProductCard';
+import WishlistLoginModal from '@/components/modals/WishlistLoginModal';
 import { Button } from '@/components/ui/button';
+import { useAuth } from '@/contexts/auth-context';
 import { getProducts } from '@/firebase/productServices';
+import { addToWishlist, removeFromWishlist } from '@/firebase/userServices';
 import { Product } from '@/types';
 import { useEffect, useState } from 'react';
 
 export default function ProductsSection() {
+	const { user, setUser } = useAuth();
+
 	const [products, setProducts] = useState<Product[] | null>(null);
 	const [loading, setLoading] = useState(true);
 	const [message, setmessage] = useState({ variant: '', message: '' });
 	const [favorites, setFavorites] = useState<string[]>([]);
+	const [wishlistLoginModalOpen, setWishlistLoginModalOpen] = useState(false);
 
 	useEffect(() => {
 		const fetchProducts = async () => {
@@ -26,8 +32,36 @@ export default function ProductsSection() {
 		fetchProducts();
 	}, []);
 
-	const toggleFavorite = (productId: string) => {
-		setFavorites((prev) => (prev.includes(productId) ? prev.filter((id) => id !== productId) : [...prev, productId]));
+	useEffect(() => {
+		if (user && user.wishlist) {
+			setFavorites(user.wishlist);
+		} else {
+			setFavorites([]);
+		}
+	}, [user]);
+
+	const toggleFavorite = async (productId: string) => {
+		if (!user) {
+			setWishlistLoginModalOpen(true);
+			return;
+		}
+
+		const wasFavorite = favorites.includes(productId);
+		const newFavorites = wasFavorite ? favorites.filter((id) => id !== productId) : [...favorites, productId];
+
+		setFavorites(newFavorites);
+		setUser({ ...user, wishlist: newFavorites });
+
+		try {
+			if (wasFavorite) {
+				await removeFromWishlist(user.uid, productId);
+			} else {
+				await addToWishlist(user.uid, productId);
+			}
+		} catch (error) {
+			setFavorites(favorites);
+			setUser({ ...user, wishlist: newFavorites });
+		}
 	};
 
 	if (loading) {
@@ -57,6 +91,10 @@ export default function ProductsSection() {
 					Load More Deals
 				</Button>
 			</div>
+
+			{wishlistLoginModalOpen && (
+				<WishlistLoginModal isOpen={wishlistLoginModalOpen} onClose={setWishlistLoginModalOpen} />
+			)}
 		</div>
 	);
 }

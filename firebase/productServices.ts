@@ -11,6 +11,24 @@ export async function getProducts() {
 	}
 }
 
+export async function getProductsByIds(ids: string[]): Promise<Product[]> {
+	try {
+		const products = await Promise.all(
+			ids.map(async (id) => {
+				const docRef = doc(db, 'products', id);
+				const docSnap = await getDoc(docRef);
+				if (docSnap.exists()) {
+					return { id: docSnap.id, ...(docSnap.data() as Omit<Product, 'id'>) } as Product;
+				}
+				return null;
+			})
+		);
+		return products.filter((product): product is Product => product !== null);
+	} catch (error) {
+		throw new Error(`Error fetching products by IDs: ${error}`);
+	}
+}
+
 export async function getProductById(id: string) {
 	try {
 		const productRef = doc(db, 'products', id);
