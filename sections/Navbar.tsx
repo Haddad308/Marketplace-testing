@@ -2,7 +2,6 @@
 
 import { Heart } from 'lucide-react';
 import Link from 'next/link';
-import { useState } from 'react';
 
 import { SignInModal } from '@/components/modals/SignInModal';
 import { SearchDropdown } from '@/components/SearchDropdown';
@@ -25,7 +24,6 @@ const categories = [
 
 export default function Navbar() {
 	const { user, loading } = useAuth();
-	const [searchQuery, setSearchQuery] = useState('');
 
 	return (
 		<header className="w-full border-b border-gray-200 bg-white shadow-sm">
