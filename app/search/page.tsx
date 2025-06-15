@@ -13,6 +13,7 @@ import { Label } from '@/components/ui/label';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { searchProducts } from '@/firebase/productServices';
+import { toast } from '@/hooks/use-toast';
 import { useToggleFavorites } from '@/hooks/use-toggle-favorites';
 import type { Product } from '@/types';
 
@@ -111,6 +112,7 @@ function SearchContent() {
 			setProducts(results);
 		} catch (error) {
 			console.error('Error searching products:', error);
+			toast.error('Error', `Error searching products: ${error}`);
 			setProducts([]);
 		} finally {
 			setIsLoading(false);

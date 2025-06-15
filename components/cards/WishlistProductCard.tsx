@@ -8,6 +8,7 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/contexts/auth-context';
 import { removeFromWishlist } from '@/firebase/userServices';
+import { toast } from '@/hooks/use-toast';
 import type { Product } from '@/types';
 
 interface WishlistProductCardProps {
@@ -28,6 +29,7 @@ export default function WishlistProductCard({ product, onRemove }: WishlistProdu
 			onRemove(product.id);
 		} catch (error) {
 			console.error('Error removing from wishlist:', error);
+			toast.error('Error', `Error removing from wishlist: ${error}`);
 			setIsRemoving(false);
 		}
 	};

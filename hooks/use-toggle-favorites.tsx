@@ -3,6 +3,7 @@
 import { useAuth } from '@/contexts/auth-context';
 import { addToWishlist, removeFromWishlist } from '@/firebase/userServices';
 import { useEffect, useState } from 'react';
+import { toast } from './use-toast';
 
 export function useToggleFavorites() {
 	const { user, setUser } = useAuth();
@@ -39,6 +40,10 @@ export function useToggleFavorites() {
 		} catch (error) {
 			setFavorites(favorites);
 			setUser({ ...user, wishlist: newFavorites });
+			toast.error(
+				'Error',
+				`Error ${wasFavorite ? 'removing' : 'adding'} product ${wasFavorite ? 'from' : 'to'} your wishlist: ${error}`
+			);
 		}
 	};
 	return { favorites, toggleFavorite, wishlistLoginModalOpen, setWishlistLoginModalOpen };

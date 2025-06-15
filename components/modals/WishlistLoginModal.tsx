@@ -7,6 +7,7 @@ import { FaGoogle } from 'react-icons/fa';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { useAuth } from '@/contexts/auth-context';
+import { toast } from '@/hooks/use-toast';
 
 interface WishlistLoginModalProps {
 	isOpen: boolean;
@@ -24,6 +25,7 @@ export default function WishlistLoginModal({ isOpen, onClose }: WishlistLoginMod
 			onClose(false);
 		} catch (error) {
 			console.error('Error signing in with Google:', error);
+			toast.error('Error', `Error signing in with Google: ${error}`);
 		} finally {
 			setIsLoading(false);
 		}

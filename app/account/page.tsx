@@ -13,12 +13,12 @@ import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
 import { useAuth } from '@/contexts/auth-context';
 import { updateUserPassword, updateUserProfileInfo } from '@/firebase/userServices';
-import { useToast } from '@/hooks/use-toast';
+import { toast, useToast } from '@/hooks/use-toast';
 import { getInitials } from '@/lib/helpers';
 
 export default function ProfilePage() {
 	const { user, setUser, loading } = useAuth();
-	const { toast } = useToast();
+	const { success, error, info, warning } = useToast();
 
 	// Profile form state
 	const [displayName, setDisplayName] = useState('');
@@ -82,18 +82,10 @@ export default function ProfilePage() {
 
 			setUser((prev) => (prev ? { ...prev, displayName } : prev));
 
-			toast({
-				title: 'Profile updated',
-				description: 'Your profile has been updated successfully.',
-				variant: 'success',
-			});
+			toast.success('Profile updated', 'Your profile has been updated successfully.');
 		} catch (error) {
 			console.error('Error updating profile:', error);
-			toast({
-				title: 'Error',
-				description: 'Failed to update profile. Please try again.',
-				variant: 'destructive',
-			});
+			toast.error('Error', 'Failed to update profile. Please try again.');
 		} finally {
 			setIsUpdatingProfile(false);
 		}
@@ -103,20 +95,12 @@ export default function ProfilePage() {
 		e.preventDefault();
 
 		if (newPassword !== confirmPassword) {
-			toast({
-				title: 'Error',
-				description: "New passwords don't match.",
-				variant: 'destructive',
-			});
+			toast.error('Error', "New passwords don't match.");
 			return;
 		}
 
 		if (newPassword.length < 6) {
-			toast({
-				title: 'Error',
-				description: 'Password must be at least 6 characters long.',
-				variant: 'destructive',
-			});
+			toast.error('Error', 'Password must be at least 6 characters long.');
 			return;
 		}
 
@@ -129,11 +113,7 @@ export default function ProfilePage() {
 			setNewPassword('');
 			setConfirmPassword('');
 
-			toast({
-				title: 'Password updated',
-				description: 'Your password has been updated successfully.',
-				variant: 'success',
-			});
+			toast.success('Password updated', 'Your password has been updated successfully.');
 		} catch (error: unknown) {
 			console.error('Error updating password:', error);
 			let errorMessage = 'Failed to update password. Please try again.';
@@ -148,11 +128,7 @@ export default function ProfilePage() {
 				}
 			}
 
-			toast({
-				title: 'Error',
-				description: errorMessage,
-				variant: 'destructive',
-			});
+			toast.error('Error', errorMessage);
 		} finally {
 			setIsUpdatingPassword(false);
 		}

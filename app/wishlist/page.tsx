@@ -5,6 +5,7 @@ import WishlistSkeleton from '@/components/skeletons/WishlistSkeleton';
 import { useAuth } from '@/contexts/auth-context';
 import { getProductsByIds } from '@/firebase/productServices';
 import { removeFromWishlist } from '@/firebase/userServices';
+import { toast } from '@/hooks/use-toast';
 import EmptyWishlist from '@/sections/EmptyWishlist';
 import type { Product } from '@/types';
 import Link from 'next/link';
@@ -33,6 +34,7 @@ export default function WishlistPage() {
 			setWishlistItems(prods);
 		} catch (error) {
 			console.error('Error fetching wishlist:', error);
+			toast.error('Error', `Error fetching wishlist: ${error}`);
 		} finally {
 			setIsLoading(false);
 		}
@@ -48,6 +50,8 @@ export default function WishlistPage() {
 			await removeFromWishlist(user.uid, productId);
 		} catch (error) {
 			console.error('Error Removing Product:', error);
+			toast.error('Error', `Error Removing Product: ${error}`);
+
 			setWishlistItems(oldWishlistItems);
 			setUser({ ...user, wishlist: oldWishlistItems.map((item) => item.id) });
 		}

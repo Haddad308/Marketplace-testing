@@ -8,6 +8,7 @@ import { useEffect, useRef, useState } from 'react';
 import { Input } from '@/components/ui/input';
 import { getPopularProducts, searchProducts } from '@/firebase/productServices';
 import { useDebounce } from '@/hooks/use-debounce';
+import { toast } from '@/hooks/use-toast';
 import { Product } from '@/types';
 import { useSearchParams } from 'next/navigation';
 import { Button } from './ui/button';
@@ -60,6 +61,7 @@ export function SearchDropdown() {
 			setProducts(popularProducts);
 		} catch (error) {
 			console.error('Error fetching popular products:', error);
+			toast.error('Error', `Error fetching popular products: ${error}`);
 		} finally {
 			setIsLoading(false);
 		}
@@ -72,6 +74,7 @@ export function SearchDropdown() {
 			setProducts(results);
 		} catch (error) {
 			console.error('Error searching products:', error);
+			toast.error('Error', `Error searching products: ${error}`);
 		} finally {
 			setIsLoading(false);
 		}

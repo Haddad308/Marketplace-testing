@@ -15,6 +15,7 @@ import {
 	DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { auth } from '@/firebase/firabase';
+import { toast } from '@/hooks/use-toast';
 import { getInitials } from '@/lib/helpers';
 import { User } from '@/types';
 
@@ -31,6 +32,7 @@ export function UserDropdown({ user, wishlistCount = 0 }: UserDropdownProps) {
 			await signOut(auth);
 		} catch (error) {
 			console.error('Error signing out:', error);
+			toast.error('Error', `Error signing out: ${error}`);
 		}
 	};
 
