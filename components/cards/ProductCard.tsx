@@ -63,8 +63,12 @@ export default function ProductCard({ product, isFavorite, onToggleFavorite }: P
 			<div className="p-4">
 				{/* Business & Category */}
 				<div className="mb-2 flex items-center justify-between">
-					<span className="text-sm font-medium text-purple-600">{business}</span>
-					<span className="rounded-full bg-gray-100 px-2 py-1 text-xs text-gray-500">{category}</span>
+					<span className="flex-1 truncate text-sm font-medium text-purple-600" title={business}>
+						{business}
+					</span>
+					<span className="truncate rounded-full bg-gray-100 px-2 py-1 text-xs text-gray-500" title={category}>
+						{category}
+					</span>
 				</div>
 
 				{/* Title */}
