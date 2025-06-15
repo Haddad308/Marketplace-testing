@@ -198,7 +198,7 @@ export default function CategoriesPage() {
 				{!loading && filteredCategories.length > 0 && (
 					<div className="mt-12 text-center">
 						<div className="rounded-lg border border-gray-200 bg-white p-8 shadow-sm">
-							<h3 className="mb-4 text-2xl font-bold text-gray-900">Can't find what you're looking for?</h3>
+							<h3 className="mb-4 text-2xl font-bold text-gray-900">Can&apos;t find what you&apos;re looking for?</h3>
 							<p className="mb-6 text-gray-600">Use our search to find specific deals or browse all available offers.</p>
 							<div className="flex flex-col justify-center gap-4 sm:flex-row">
 								<Link href="/search">

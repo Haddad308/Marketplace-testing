@@ -2,7 +2,7 @@
 
 import { ArrowLeft, Filter, Package, SlidersHorizontal } from 'lucide-react';
 import Link from 'next/link';
-import { useParams, useRouter } from 'next/navigation';
+import { useParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
 import ProductCard from '@/components/cards/ProductCard';
@@ -18,7 +18,6 @@ import type { CategoryInfo, Product } from '@/types';
 export default function CategoryPage() {
 	const { favorites, toggleFavorite, wishlistLoginModalOpen, setWishlistLoginModalOpen } = useToggleFavorites();
 	const params = useParams();
-	const router = useRouter();
 	const slug = params.slug as string;
 
 	const [products, setProducts] = useState<Product[]>([]);
@@ -94,7 +93,7 @@ export default function CategoryPage() {
 				<div className="flex flex-col items-center justify-center py-12">
 					<Package className="mb-4 h-16 w-16 text-gray-400" />
 					<h1 className="mb-2 text-2xl font-bold text-gray-900">Category Not Found</h1>
-					<p className="mb-6 text-gray-600">The category you're looking for doesn't exist.</p>
+					<p className="mb-6 text-gray-600">The category you&apos;re looking for doesn&apos;t exist.</p>
 					<Link href="/categories">
 						<Button>Browse All Categories</Button>
 					</Link>
@@ -173,7 +172,7 @@ export default function CategoryPage() {
 							<Package className="mx-auto mb-4 h-16 w-16 text-gray-400" />
 							<h3 className="mb-2 text-xl font-medium text-gray-900">No deals found</h3>
 							<p className="mb-6 text-gray-600">
-								We don't have any deals in this category right now. Check back later or browse other categories.
+								We don&apos;t have any deals in this category right now. Check back later or browse other categories.
 							</p>
 							<div className="flex flex-col justify-center gap-4 sm:flex-row">
 								<Link href="/categories">
