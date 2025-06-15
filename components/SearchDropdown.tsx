@@ -9,11 +9,14 @@ import { Input } from '@/components/ui/input';
 import { getPopularProducts, searchProducts } from '@/firebase/productServices';
 import { useDebounce } from '@/hooks/use-debounce';
 import { Product } from '@/types';
+import { useSearchParams } from 'next/navigation';
 import { Button } from './ui/button';
 
 export function SearchDropdown() {
+	const searchParams = useSearchParams();
+
 	const [isOpen, setIsOpen] = useState(false);
-	const [searchQuery, setSearchQuery] = useState('');
+	const [searchQuery, setSearchQuery] = useState(searchParams.get('q') || '');
 	const [products, setProducts] = useState<Product[]>([]);
 	const [isLoading, setIsLoading] = useState(false);
 	const debouncedSearchQuery = useDebounce(searchQuery, 300);
@@ -152,13 +155,15 @@ export function SearchDropdown() {
 					</div>
 
 					{products.length > 0 && (
-						<Link
-							href={`/search?q=${encodeURIComponent(searchQuery)}`}
-							className="mx-4 mb-4 flex items-center justify-center rounded-full bg-purple-600 py-3 text-center text-sm font-medium text-white transition-colors hover:bg-purple-700"
+						<Button
+							onClick={() => {
+								window.location.href = `/search?q=${encodeURIComponent(searchQuery)}`;
+							}}
+							className="mb-2 w-full rounded-full bg-purple-600 py-3 text-center text-sm font-medium text-white transition-colors hover:bg-purple-700"
 						>
 							<Search className="mr-2 h-4 w-4" />
 							Show all results
-						</Link>
+						</Button>
 					)}
 				</div>
 			)}
