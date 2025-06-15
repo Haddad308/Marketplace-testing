@@ -2,10 +2,9 @@
 
 import { ChevronDown, Eye, EyeOff, User } from 'lucide-react';
 import { useState } from 'react';
-import { FaFacebook, FaGoogle } from 'react-icons/fa';
+import { FaGoogle } from 'react-icons/fa';
 
 import { Button } from '@/components/ui/button';
-import { Checkbox } from '@/components/ui/checkbox';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -36,7 +35,6 @@ export function SignInModal() {
 		email: '',
 		password: '',
 		name: '',
-		agreeToEmails: false,
 	});
 	const [showPassword, setShowPassword] = useState(false);
 	const [isLoading, setIsLoading] = useState(false);
@@ -155,16 +153,10 @@ export function SignInModal() {
 
 	const resetForm = () => {
 		setStep('email');
-		setFormData({ email: '', password: '', name: '', agreeToEmails: false });
+		setFormData({ email: '', password: '', name: '' });
 		setShowPassword(false);
 		setError((prev) => ({ ...prev, email: 'Email is required.', response: '' }));
 		setTouched(null);
-	};
-
-	const handleSocialLogin = (provider: 'Facebook' | 'Google') => {
-		if (provider === 'Google') {
-			signInWithGoogle();
-		}
 	};
 
 	const renderError = (field: keyof ValidationError) => {
@@ -196,17 +188,8 @@ export function SignInModal() {
 
 							<Button
 								variant="outline"
-								className="mb-3 flex w-full items-center justify-center space-x-3 border-gray-300 py-3 hover:bg-gray-50"
-								onClick={() => handleSocialLogin('Facebook')}
-							>
-								<FaFacebook className="h-5 w-5 text-blue-600" />
-								<span>Continue with Facebook</span>
-							</Button>
-
-							<Button
-								variant="outline"
 								className="mb-4 flex w-full items-center justify-center space-x-3 border-gray-300 py-3 hover:bg-gray-50"
-								onClick={() => handleSocialLogin('Google')}
+								onClick={signInWithGoogle}
 							>
 								<FaGoogle className="h-5 w-5 text-red-500" />
 								<span>Continue with Google</span>
@@ -281,12 +264,6 @@ export function SignInModal() {
 							</Button>
 
 							{renderResponseError()}
-
-							<div className="mt-4 text-center">
-								<Button variant="link" className="text-sm text-purple-600" onClick={resetForm}>
-									Forgot password?
-								</Button>
-							</div>
 						</>
 					)}
 
@@ -339,17 +316,6 @@ export function SignInModal() {
 								</Button>
 							</div>
 							{renderError('password')}
-
-							<div className="mt-3 flex items-start space-x-2">
-								<Checkbox
-									id="emails"
-									checked={formData.agreeToEmails}
-									onCheckedChange={(checked) => setFormData((prev) => ({ ...prev, agreeToEmails: checked as boolean }))}
-								/>
-								<Label htmlFor="emails" className="text-sm leading-5 text-gray-700">
-									Yes, I want to save money by receiving personalized DealSpot emails with awesome deals.
-								</Label>
-							</div>
 
 							<Button
 								onClick={handleSignUp}

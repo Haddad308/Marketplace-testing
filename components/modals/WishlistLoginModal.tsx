@@ -2,7 +2,7 @@
 
 import { Heart } from 'lucide-react';
 import { Dispatch, SetStateAction, useState } from 'react';
-import { FaFacebook, FaGoogle } from 'react-icons/fa';
+import { FaGoogle } from 'react-icons/fa';
 
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
@@ -29,8 +29,6 @@ export default function WishlistLoginModal({ isOpen, onClose }: WishlistLoginMod
 		}
 	};
 
-	const handleFacebookSignIn = async () => {};
-
 	return (
 		<Dialog open={isOpen} onOpenChange={onClose}>
 			<DialogContent className="bg-white sm:max-w-md">
@@ -55,16 +53,6 @@ export default function WishlistLoginModal({ isOpen, onClose }: WishlistLoginMod
 					>
 						<FaGoogle className="h-5 w-5 text-red-500" />
 						<span>Continue with Google</span>
-					</Button>
-
-					<Button
-						variant="outline"
-						className="flex w-full items-center justify-center space-x-3 border-gray-300 py-3 hover:bg-gray-50"
-						onClick={handleFacebookSignIn}
-						disabled={isLoading}
-					>
-						<FaFacebook className="h-5 w-5 text-blue-600" />
-						<span>Continue with Facebook</span>
 					</Button>
 				</div>
 
