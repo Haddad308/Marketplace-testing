@@ -1,13 +1,9 @@
 import ProductCardSkeleton from './ProductCardSkeleton';
 
-interface ProductGridSkeletonProps {
-	count?: number;
-}
-
-export function ProductGridSkeleton({ count = 8 }: ProductGridSkeletonProps) {
+export function ProductGridSkeleton() {
 	return (
-		<div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-			{[...Array(count)].map((_, i) => (
+		<div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+			{[...Array(6)].map((_, i) => (
 				<ProductCardSkeleton key={i} />
 			))}
 		</div>

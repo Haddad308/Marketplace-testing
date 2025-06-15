@@ -2,6 +2,7 @@
 
 import ProductCard from '@/components/cards/ProductCard';
 import WishlistLoginModal from '@/components/modals/WishlistLoginModal';
+import ProductGridSkeleton from '@/components/skeletons/ProductGridSkeleton';
 import { Button } from '@/components/ui/button';
 import { getProducts } from '@/firebase/productServices';
 import { useToggleFavorites } from '@/hooks/use-toggle-favorites';
@@ -30,7 +31,7 @@ export default function ProductsSection() {
 	}, []);
 
 	if (loading) {
-		return <h1>Loading...</h1>;
+		return <ProductGridSkeleton />;
 	}
 
 	return (

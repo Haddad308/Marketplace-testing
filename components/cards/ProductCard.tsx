@@ -31,7 +31,7 @@ export default function ProductCard({ product, isFavorite, onToggleFavorite }: P
 	} = product;
 
 	return (
-		<div className="group overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm transition-shadow duration-300 hover:shadow-lg">
+		<div className="group flex flex-col overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm transition-shadow duration-300 hover:shadow-lg">
 			{/* Image Container */}
 			<div className="relative aspect-[4/3] overflow-hidden">
 				<Image
@@ -60,7 +60,7 @@ export default function ProductCard({ product, isFavorite, onToggleFavorite }: P
 			</div>
 
 			{/* Content */}
-			<div className="p-4">
+			<div className="flex flex-1 flex-col p-4">
 				{/* Business & Category */}
 				<div className="mb-2 flex items-center justify-between">
 					<span className="flex-1 truncate text-sm font-medium text-purple-600" title={business}>
@@ -107,7 +107,7 @@ export default function ProductCard({ product, isFavorite, onToggleFavorite }: P
 				</div>
 
 				{/* CTA Button */}
-				<Link href={redirectLink || `/product/${id}`}>
+				<Link href={redirectLink || `/product/${id}`} className="flex flex-1 items-end">
 					<Button className="mt-4 w-full rounded-lg bg-purple-600 py-2.5 font-medium text-white transition-colors duration-200 hover:bg-purple-700">
 						View Deal
 					</Button>
