@@ -1,5 +1,6 @@
 import { ThemeProvider } from '@/components/theme-provider';
 import { FirebaseProvider } from '@/firebase/firebase-provider';
+import Navbar from '@/sections/Navbar';
 import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
 import type React from 'react';
@@ -25,7 +26,10 @@ export default function RootLayout({
 			</head>
 			<body className={inter.className}>
 				<ThemeProvider attribute="class" defaultTheme="light" enableSystem disableTransitionOnChange>
-					<FirebaseProvider>{children}</FirebaseProvider>
+					<FirebaseProvider>
+						<Navbar />
+						<main className="container mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">{children}</main>
+					</FirebaseProvider>
 				</ThemeProvider>
 			</body>
 		</html>

@@ -14,7 +14,6 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { searchProducts } from '@/firebase/productServices';
 import { useToggleFavorites } from '@/hooks/use-toggle-favorites';
-import Navbar from '@/sections/Navbar';
 import type { Product } from '@/types';
 
 interface SearchFilters {
@@ -168,210 +167,207 @@ function SearchContent() {
 
 	return (
 		<>
-			<Navbar />
-			<div className="container mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-				{/* Results Info */}
-				{!isLoading && (
-					<div className="mb-8 flex items-center gap-2">
-						<ArrowLeft className="cursor-pointer" onClick={() => router.push('/')} />
-						<p className="text-gray-600">
-							{products.length > 0
-								? `Found ${products.length} deal${products.length !== 1 ? 's' : ''} ${
-										filters.query ? `for "${filters.query}"` : ''
-									}`
-								: filters.query
-									? `No results found for "${filters.query}"`
-									: 'Enter a search term to find deals'}
-						</p>
-					</div>
-				)}
+			{/* Results Info */}
+			{!isLoading && (
+				<div className="mb-8 flex items-center gap-2">
+					<ArrowLeft className="cursor-pointer" onClick={() => router.push('/')} />
+					<p className="text-gray-600">
+						{products.length > 0
+							? `Found ${products.length} deal${products.length !== 1 ? 's' : ''} ${
+									filters.query ? `for "${filters.query}"` : ''
+								}`
+							: filters.query
+								? `No results found for "${filters.query}"`
+								: 'Enter a search term to find deals'}
+					</p>
+				</div>
+			)}
 
-				{/* Filters and Sorting */}
-				{(products.length > 0 || isLoading) && (
-					<div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-						<div className="flex flex-wrap gap-4">
-							{/* Category Filter */}
-							<Select value={filters.category} onValueChange={(value) => handleFilterChange('category', value)}>
-								<SelectTrigger className="w-48">
-									<Filter className="mr-2 h-4 w-4" />
-									<SelectValue placeholder="Category" />
-								</SelectTrigger>
-								<SelectContent>
-									{categories.map((category) => (
-										<SelectItem key={category} value={category}>
-											{category === 'all' ? 'All Categories' : category}
-										</SelectItem>
-									))}
-								</SelectContent>
-							</Select>
-
-							{/* Price Filter */}
-							<Popover>
-								<PopoverTrigger asChild>
-									<Button variant="outline" className="w-48">
-										<DollarSign className="mr-2 h-4 w-4" />
-										Price Range
-										{hasActiveFilters && <span className="ml-1 h-2 w-2 rounded-full bg-purple-600"></span>}
-									</Button>
-								</PopoverTrigger>
-								<PopoverContent className="w-80">
-									<div className="space-y-4">
-										<div className="space-y-2">
-											<Label className="text-sm font-medium">Price Range</Label>
-											<div className="flex items-center space-x-2">
-												<div className="flex-1">
-													<Label htmlFor="minPrice" className="text-xs text-gray-500">
-														Min
-													</Label>
-													<Input
-														id="minPrice"
-														type="number"
-														placeholder="0"
-														value={tempMinPrice}
-														onChange={(e) => setTempMinPrice(e.target.value)}
-														className="mt-1"
-														min="0"
-													/>
-												</div>
-												<div className="flex-1">
-													<Label htmlFor="maxPrice" className="text-xs text-gray-500">
-														Max
-													</Label>
-													<Input
-														id="maxPrice"
-														type="number"
-														placeholder="1000"
-														value={tempMaxPrice}
-														onChange={(e) => setTempMaxPrice(e.target.value)}
-														className="mt-1"
-														min="0"
-													/>
-												</div>
-											</div>
-										</div>
-										<div className="flex space-x-2">
-											<Button onClick={handlePriceFilter} size="sm" className="flex-1">
-												Apply
-											</Button>
-											<Button onClick={handleResetPriceFilter} variant="outline" size="sm" className="flex-1">
-												Reset
-											</Button>
-										</div>
-									</div>
-								</PopoverContent>
-							</Popover>
-						</div>
-
-						{/* Sort Filter */}
-						<Select value={filters.sortBy} onValueChange={(value) => handleFilterChange('sortBy', value)}>
+			{/* Filters and Sorting */}
+			{(products.length > 0 || isLoading) && (
+				<div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+					<div className="flex flex-wrap gap-4">
+						{/* Category Filter */}
+						<Select value={filters.category} onValueChange={(value) => handleFilterChange('category', value)}>
 							<SelectTrigger className="w-48">
-								<SlidersHorizontal className="mr-2 h-4 w-4" />
-								<SelectValue placeholder="Sort by" />
+								<Filter className="mr-2 h-4 w-4" />
+								<SelectValue placeholder="Category" />
 							</SelectTrigger>
 							<SelectContent>
-								<SelectItem value="relevance">Relevance</SelectItem>
-								<SelectItem value="price-low">Price: Low to High</SelectItem>
-								<SelectItem value="price-high">Price: High to Low</SelectItem>
-								<SelectItem value="discount">Highest Discount</SelectItem>
-								<SelectItem value="rating">Highest Rated</SelectItem>
+								{categories.map((category) => (
+									<SelectItem key={category} value={category}>
+										{category === 'all' ? 'All Categories' : category}
+									</SelectItem>
+								))}
 							</SelectContent>
 						</Select>
-					</div>
-				)}
 
-				{/* Active Filters Display */}
-				{hasActiveFilters && (
-					<div className="mb-6 flex flex-wrap gap-2">
-						{filters.category !== 'all' && (
-							<div className="flex items-center rounded-full bg-purple-100 px-3 py-1 text-sm">
-								<span className="text-purple-800">Category: {filters.category}</span>
-								<button
-									onClick={() => handleFilterChange('category', 'all')}
-									className="ml-2 cursor-pointer text-purple-600 hover:text-purple-800"
-									aria-label="Clear category filter"
-								>
-									<XIcon className="h-4 w-4" />
-								</button>
-							</div>
-						)}
-						{(filters.minPrice > 0 || filters.maxPrice < 1000) && (
-							<div className="flex items-center rounded-full bg-purple-100 px-3 py-1 text-sm">
-								<span className="text-purple-800">
-									Price: ${filters.minPrice} - ${filters.maxPrice}
-								</span>
-								<button onClick={handleResetPriceFilter} className="ml-2 cursor-pointer text-purple-600 hover:text-purple-800">
-									<XIcon className="h-4 w-4" />
-								</button>
-							</div>
-						)}
-					</div>
-				)}
-
-				{/* Results */}
-				{isLoading ? (
-					<div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-						{[...Array(8)].map((_, i) => (
-							<ProductCardSkeleton key={i} />
-						))}
-					</div>
-				) : products.length > 0 ? (
-					<div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-						{products.map((product) => (
-							<ProductCard
-								key={product.id}
-								product={product}
-								isFavorite={favorites.includes(product.id)}
-								onToggleFavorite={() => toggleFavorite(product.id)}
-							/>
-						))}
-					</div>
-				) : filters.query ? (
-					<div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-gray-300 bg-gray-50 p-12 text-center">
-						<div className="mb-4 rounded-full bg-gray-100 p-4">
-							<Search className="h-12 w-12 text-gray-400" />
-						</div>
-						<h3 className="mb-2 text-lg font-medium">No deals found</h3>
-						<p className="mb-6 text-gray-500">
-							We couldn't find any deals matching your criteria. Try adjusting your filters or search terms.
-						</p>
-						<div className="flex gap-2">
-							<Button onClick={() => handleFilterChange('query', '')} variant="outline">
-								Clear Search
-							</Button>
-							{hasActiveFilters && (
-								<Button
-									onClick={() => {
-										const resetFilters = {
-											...filters,
-											category: 'all',
-											minPrice: 0,
-											maxPrice: 1000,
-										};
-										setFilters(resetFilters);
-										updateURL(resetFilters);
-										performSearch(resetFilters);
-									}}
-									variant="outline"
-								>
-									Clear Filters
+						{/* Price Filter */}
+						<Popover>
+							<PopoverTrigger asChild>
+								<Button variant="outline" className="w-48">
+									<DollarSign className="mr-2 h-4 w-4" />
+									Price Range
+									{hasActiveFilters && <span className="ml-1 h-2 w-2 rounded-full bg-purple-600"></span>}
 								</Button>
-							)}
-						</div>
+							</PopoverTrigger>
+							<PopoverContent className="w-80">
+								<div className="space-y-4">
+									<div className="space-y-2">
+										<Label className="text-sm font-medium">Price Range</Label>
+										<div className="flex items-center space-x-2">
+											<div className="flex-1">
+												<Label htmlFor="minPrice" className="text-xs text-gray-500">
+													Min
+												</Label>
+												<Input
+													id="minPrice"
+													type="number"
+													placeholder="0"
+													value={tempMinPrice}
+													onChange={(e) => setTempMinPrice(e.target.value)}
+													className="mt-1"
+													min="0"
+												/>
+											</div>
+											<div className="flex-1">
+												<Label htmlFor="maxPrice" className="text-xs text-gray-500">
+													Max
+												</Label>
+												<Input
+													id="maxPrice"
+													type="number"
+													placeholder="1000"
+													value={tempMaxPrice}
+													onChange={(e) => setTempMaxPrice(e.target.value)}
+													className="mt-1"
+													min="0"
+												/>
+											</div>
+										</div>
+									</div>
+									<div className="flex space-x-2">
+										<Button onClick={handlePriceFilter} size="sm" className="flex-1">
+											Apply
+										</Button>
+										<Button onClick={handleResetPriceFilter} variant="outline" size="sm" className="flex-1">
+											Reset
+										</Button>
+									</div>
+								</div>
+							</PopoverContent>
+						</Popover>
 					</div>
-				) : (
-					<div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-gray-300 bg-gray-50 p-12 text-center">
-						<div className="mb-4 rounded-full bg-purple-100 p-4">
-							<Search className="h-12 w-12 text-purple-600" />
-						</div>
-						<h3 className="mb-2 text-lg font-medium">Start your search</h3>
-						<p className="text-gray-500">Enter keywords to find amazing deals and offers.</p>
-					</div>
-				)}
 
-				{wishlistLoginModalOpen && (
-					<WishlistLoginModal isOpen={wishlistLoginModalOpen} onClose={setWishlistLoginModalOpen} />
-				)}
-			</div>
+					{/* Sort Filter */}
+					<Select value={filters.sortBy} onValueChange={(value) => handleFilterChange('sortBy', value)}>
+						<SelectTrigger className="w-48">
+							<SlidersHorizontal className="mr-2 h-4 w-4" />
+							<SelectValue placeholder="Sort by" />
+						</SelectTrigger>
+						<SelectContent>
+							<SelectItem value="relevance">Relevance</SelectItem>
+							<SelectItem value="price-low">Price: Low to High</SelectItem>
+							<SelectItem value="price-high">Price: High to Low</SelectItem>
+							<SelectItem value="discount">Highest Discount</SelectItem>
+							<SelectItem value="rating">Highest Rated</SelectItem>
+						</SelectContent>
+					</Select>
+				</div>
+			)}
+
+			{/* Active Filters Display */}
+			{hasActiveFilters && (
+				<div className="mb-6 flex flex-wrap gap-2">
+					{filters.category !== 'all' && (
+						<div className="flex items-center rounded-full bg-purple-100 px-3 py-1 text-sm">
+							<span className="text-purple-800">Category: {filters.category}</span>
+							<button
+								onClick={() => handleFilterChange('category', 'all')}
+								className="ml-2 cursor-pointer text-purple-600 hover:text-purple-800"
+								aria-label="Clear category filter"
+							>
+								<XIcon className="h-4 w-4" />
+							</button>
+						</div>
+					)}
+					{(filters.minPrice > 0 || filters.maxPrice < 1000) && (
+						<div className="flex items-center rounded-full bg-purple-100 px-3 py-1 text-sm">
+							<span className="text-purple-800">
+								Price: ${filters.minPrice} - ${filters.maxPrice}
+							</span>
+							<button onClick={handleResetPriceFilter} className="ml-2 cursor-pointer text-purple-600 hover:text-purple-800">
+								<XIcon className="h-4 w-4" />
+							</button>
+						</div>
+					)}
+				</div>
+			)}
+
+			{/* Results */}
+			{isLoading ? (
+				<div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+					{[...Array(8)].map((_, i) => (
+						<ProductCardSkeleton key={i} />
+					))}
+				</div>
+			) : products.length > 0 ? (
+				<div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+					{products.map((product) => (
+						<ProductCard
+							key={product.id}
+							product={product}
+							isFavorite={favorites.includes(product.id)}
+							onToggleFavorite={() => toggleFavorite(product.id)}
+						/>
+					))}
+				</div>
+			) : filters.query ? (
+				<div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-gray-300 bg-gray-50 p-12 text-center">
+					<div className="mb-4 rounded-full bg-gray-100 p-4">
+						<Search className="h-12 w-12 text-gray-400" />
+					</div>
+					<h3 className="mb-2 text-lg font-medium">No deals found</h3>
+					<p className="mb-6 text-gray-500">
+						We couldn't find any deals matching your criteria. Try adjusting your filters or search terms.
+					</p>
+					<div className="flex gap-2">
+						<Button onClick={() => handleFilterChange('query', '')} variant="outline">
+							Clear Search
+						</Button>
+						{hasActiveFilters && (
+							<Button
+								onClick={() => {
+									const resetFilters = {
+										...filters,
+										category: 'all',
+										minPrice: 0,
+										maxPrice: 1000,
+									};
+									setFilters(resetFilters);
+									updateURL(resetFilters);
+									performSearch(resetFilters);
+								}}
+								variant="outline"
+							>
+								Clear Filters
+							</Button>
+						)}
+					</div>
+				</div>
+			) : (
+				<div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-gray-300 bg-gray-50 p-12 text-center">
+					<div className="mb-4 rounded-full bg-purple-100 p-4">
+						<Search className="h-12 w-12 text-purple-600" />
+					</div>
+					<h3 className="mb-2 text-lg font-medium">Start your search</h3>
+					<p className="text-gray-500">Enter keywords to find amazing deals and offers.</p>
+				</div>
+			)}
+
+			{wishlistLoginModalOpen && (
+				<WishlistLoginModal isOpen={wishlistLoginModalOpen} onClose={setWishlistLoginModalOpen} />
+			)}
 		</>
 	);
 }
