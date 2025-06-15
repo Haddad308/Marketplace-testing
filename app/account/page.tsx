@@ -13,12 +13,11 @@ import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
 import { useAuth } from '@/contexts/auth-context';
 import { updateUserPassword, updateUserProfileInfo } from '@/firebase/userServices';
-import { toast, useToast } from '@/hooks/use-toast';
+import { toast } from '@/hooks/use-toast';
 import { getInitials } from '@/lib/helpers';
 
 export default function ProfilePage() {
 	const { user, setUser, loading } = useAuth();
-	const { success, error, info, warning } = useToast();
 
 	// Profile form state
 	const [displayName, setDisplayName] = useState('');
