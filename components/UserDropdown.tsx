@@ -1,7 +1,7 @@
 'use client';
 
 import { signOut } from 'firebase/auth';
-import { Heart, LogOut, User } from 'lucide-react';
+import { Heart, LogOut, User as UserIcon } from 'lucide-react';
 import Link from 'next/link';
 import { useState } from 'react';
 
@@ -15,13 +15,11 @@ import {
 	DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { auth } from '@/firebase/firabase';
+import { getInitials } from '@/lib/helpers';
+import { User } from '@/types';
 
 interface UserDropdownProps {
-	user: {
-		displayName: string | null;
-		email: string | null;
-		photoURL: string | null;
-	};
+	user: User;
 	wishlistCount?: number;
 }
 
@@ -36,18 +34,6 @@ export function UserDropdown({ user, wishlistCount = 0 }: UserDropdownProps) {
 		}
 	};
 
-	const getInitials = () => {
-		if (user.displayName) {
-			return user.displayName
-				.split(' ')
-				.map((n) => n[0])
-				.join('')
-				.toUpperCase()
-				.substring(0, 2);
-		}
-		return user.email ? user.email[0].toUpperCase() : 'U';
-	};
-
 	return (
 		<DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
 			<DropdownMenuTrigger asChild>
@@ -57,7 +43,7 @@ export function UserDropdown({ user, wishlistCount = 0 }: UserDropdownProps) {
 				>
 					<Avatar className="h-6 w-6">
 						<AvatarImage src={user.photoURL || ''} alt={user.displayName || 'User'} />
-						<AvatarFallback className="bg-purple-100 text-purple-800">{getInitials()}</AvatarFallback>
+						<AvatarFallback className="bg-purple-100 text-purple-800">{getInitials(user)}</AvatarFallback>
 					</Avatar>
 					<span className="hidden md:inline">{user.displayName || user.email?.split('@')[0] || 'User'}</span>
 				</Button>
@@ -68,7 +54,7 @@ export function UserDropdown({ user, wishlistCount = 0 }: UserDropdownProps) {
 					<div className="flex items-center gap-3">
 						<Avatar className="h-10 w-10">
 							<AvatarImage src={user.photoURL || ''} alt={user.displayName || 'User'} />
-							<AvatarFallback className="bg-purple-100 text-purple-800">{getInitials()}</AvatarFallback>
+							<AvatarFallback className="bg-purple-100 text-purple-800">{getInitials(user)}</AvatarFallback>
 						</Avatar>
 						<div className="text-sm text-gray-600">{user.email}</div>
 					</div>
@@ -88,7 +74,7 @@ export function UserDropdown({ user, wishlistCount = 0 }: UserDropdownProps) {
 
 				<Link href="/account" className="block">
 					<DropdownMenuItem className="flex cursor-pointer items-center p-3 text-base hover:bg-purple-200">
-						<User className="mr-3 h-5 w-5" />
+						<UserIcon className="mr-3 h-5 w-5" />
 						<span>Account Settings</span>
 					</DropdownMenuItem>
 				</Link>

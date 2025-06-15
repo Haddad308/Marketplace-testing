@@ -1,3 +1,4 @@
+import { ToastProvider } from '@/components/providers/toast-provider';
 import { ThemeProvider } from '@/components/theme-provider';
 import { FirebaseProvider } from '@/firebase/firebase-provider';
 import Navbar from '@/sections/Navbar';
@@ -27,8 +28,10 @@ export default function RootLayout({
 			<body className={inter.className}>
 				<ThemeProvider attribute="class" defaultTheme="light" enableSystem disableTransitionOnChange>
 					<FirebaseProvider>
-						<Navbar />
-						<main className="container mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">{children}</main>
+						<ToastProvider>
+							<Navbar />
+							<main className="container mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">{children}</main>
+						</ToastProvider>
 					</FirebaseProvider>
 				</ThemeProvider>
 			</body>
