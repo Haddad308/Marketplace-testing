@@ -329,7 +329,7 @@ function SearchContent() {
 					</div>
 					<h3 className="mb-2 text-lg font-medium">No deals found</h3>
 					<p className="mb-6 text-gray-500">
-						We couldn't find any deals matching your criteria. Try adjusting your filters or search terms.
+						We couldn&apos;t find any deals matching your criteria. Try adjusting your filters or search terms.
 					</p>
 					<div className="flex gap-2">
 						<Button onClick={() => handleFilterChange('query', '')} variant="outline">
