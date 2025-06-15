@@ -21,3 +21,10 @@ export type Product = {
 export interface User extends FirebaseAuthUser {
 	wishlist?: string[];
 }
+
+export interface CategoryInfo {
+	name?: string;
+	icon: string;
+	description: string;
+	color: string;
+}

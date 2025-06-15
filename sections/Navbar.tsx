@@ -10,18 +10,7 @@ import { LoadingButton } from '@/components/ui/loading-button';
 import { UserDropdown } from '@/components/UserDropdown';
 import WishlistBadge from '@/components/WishlistBadge';
 import { useAuth } from '@/contexts/auth-context';
-
-const categories = [
-	{ name: 'Beauty & Spas', icon: '💄' },
-	{ name: 'Things To Do', icon: '🎯' },
-	{ name: 'Auto & Home', icon: '🏠' },
-	{ name: 'Food & Drink', icon: '🍽️' },
-	{ name: 'Gifts', icon: '🎁' },
-	{ name: 'Local', icon: '📍' },
-	{ name: 'Travel', icon: '✈️' },
-	{ name: 'Goods', icon: '🛍️' },
-	{ name: 'Coupons', icon: '🎫' },
-];
+import { categories } from '@/lib/constants';
 
 export default function Navbar() {
 	const { user, loading } = useAuth();
@@ -70,7 +59,7 @@ export default function Navbar() {
 							{categories.map((category) => (
 								<Link
 									key={category.name}
-									href={`/category/${category.name.toLowerCase().replace(/\s+/g, '-')}`}
+									href={`/categories/${category.name.toLowerCase().replace(/\s+/g, '-').replace(/&/g, 'and')}`}
 									className="flex items-center space-x-2 text-sm font-medium whitespace-nowrap text-gray-600 transition-colors duration-200 hover:text-purple-600"
 								>
 									<span className="text-base">{category.icon}</span>

@@ -1,6 +1,6 @@
 'use client';
 
-import { Search, X } from 'lucide-react';
+import { Grid3X3, Search, X } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useEffect, useRef, useState } from 'react';
@@ -116,22 +116,35 @@ export function SearchDropdown() {
 
 			{isOpen && (
 				<div className="absolute z-50 mt-2 w-full rounded-lg border border-gray-200 bg-white shadow-lg">
-					<div className="p-4">
-						<h3 className="mb-3 text-sm font-medium text-gray-500">{searchQuery ? 'Deals' : 'Popular searches'}</h3>
-
-						{isLoading ? (
-							<div className="flex h-24 items-center justify-center">
-								<div className="h-6 w-6 animate-spin rounded-full border-2 border-purple-600 border-t-transparent"></div>
+					<div className="flex max-h-[70vh] flex-col">
+						{/* Header */}
+						<div className="border-b border-gray-100 p-4">
+							<div className="mb-3 flex items-center justify-between">
+								<h3 className="text-sm font-medium text-gray-500">{searchQuery ? 'Deals' : 'Popular searches'}</h3>
+								<Link href="/categories" onClick={() => setIsOpen(false)}>
+									<Button variant="ghost" size="sm" className="text-xs text-purple-600 hover:text-purple-700">
+										<Grid3X3 className="mr-1 h-3 w-3" />
+										Browse Categories
+									</Button>
+								</Link>
 							</div>
-						) : products.length === 0 ? (
-							<div className="py-4 text-center text-gray-500">No results found</div>
-						) : (
-							<div className="space-y-4">
-								{products.map((product) => (
+						</div>
+
+						{/* Scrollable Products List */}
+						<div className="flex-1 space-y-4 overflow-y-auto p-4">
+							{isLoading ? (
+								<div className="flex h-24 items-center justify-center">
+									<div className="h-6 w-6 animate-spin rounded-full border-2 border-purple-600 border-t-transparent"></div>
+								</div>
+							) : products.length === 0 ? (
+								<div className="py-4 text-center text-gray-500">No results found</div>
+							) : (
+								products.map((product) => (
 									<Link
 										key={product.id}
 										href={`/product/${product.id}`}
 										className="flex items-start gap-3 rounded-lg p-2 transition-colors hover:bg-gray-50"
+										onClick={() => setIsOpen(false)}
 									>
 										<div className="relative h-20 w-24 flex-shrink-0 overflow-hidden rounded-md">
 											<Image
@@ -146,28 +159,31 @@ export function SearchDropdown() {
 											<h4 className="mb-1 line-clamp-2 text-sm font-medium text-gray-900">{product.title}</h4>
 											<div className="mb-1 text-xs text-gray-500">{product.location}</div>
 											<div className="flex items-center gap-2">
-												<span className="text-sm font-bold text-gray-900">{product.originalPrice}</span>
+												<span className="text-sm font-bold text-gray-900">${product.discountedPrice}</span>
 												<span className="text-xs text-gray-500 line-through">${product.originalPrice}</span>
-												<span className="text-xs font-medium text-green-600">{product.discountPercentage}</span>
+												<span className="text-xs font-medium text-green-600">-{product.discountPercentage}%</span>
 											</div>
 										</div>
 									</Link>
-								))}
+								))
+							)}
+						</div>
+
+						{/* Sticky Footer Button */}
+						{products.length > 0 && (
+							<div className="border-t border-gray-100 p-2">
+								<Button
+									onClick={() => {
+										window.location.href = `/search?q=${encodeURIComponent(searchQuery)}`;
+									}}
+									className="w-full rounded-full bg-purple-600 py-3 text-center text-sm font-medium text-white transition-colors hover:bg-purple-700"
+								>
+									<Search className="mr-2 h-4 w-4" />
+									Show all results
+								</Button>
 							</div>
 						)}
 					</div>
-
-					{products.length > 0 && (
-						<Button
-							onClick={() => {
-								window.location.href = `/search?q=${encodeURIComponent(searchQuery)}`;
-							}}
-							className="mb-2 w-full rounded-full bg-purple-600 py-3 text-center text-sm font-medium text-white transition-colors hover:bg-purple-700"
-						>
-							<Search className="mr-2 h-4 w-4" />
-							Show all results
-						</Button>
-					)}
 				</div>
 			)}
 		</div>
