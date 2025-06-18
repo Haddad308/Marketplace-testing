@@ -16,8 +16,8 @@ import { IKContext } from 'imagekitio-react';
 
 const navigation = [
 	{ name: 'Dashboard', href: '/merchant/dashboard', icon: LayoutDashboard },
-	{ name: 'Add Service', href: '/merchant/add-service', icon: Plus },
-	{ name: 'Manage Services', href: '/merchant/manage-services', icon: Package },
+	{ name: 'Add Product', href: '/merchant/add-product', icon: Plus },
+	{ name: 'Manage Products', href: '/merchant/manage-products', icon: Package },
 ];
 
 export default function MerchantLayout({ children }: { children: React.ReactNode }) {
