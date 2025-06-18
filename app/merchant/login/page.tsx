@@ -2,7 +2,7 @@
 
 import { Eye, EyeOff, Lock, Mail, Store } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -12,13 +12,19 @@ import { useAuth } from '@/contexts/auth-context';
 import { toast } from '@/hooks/use-toast';
 
 export default function MerchantLoginPage() {
-	const { signIn } = useAuth();
+	const { user, signIn } = useAuth();
 
 	const [email, setEmail] = useState('');
 	const [password, setPassword] = useState('');
 	const [showPassword, setShowPassword] = useState(false);
 	const [isLoading, setIsLoading] = useState(false);
 	const router = useRouter();
+
+	useEffect(() => {
+		if (user) {
+			router.push('/merchant/dashboard');
+		}
+	}, []);
 
 	const handleLogin = async (e: React.FormEvent) => {
 		e.preventDefault();
@@ -33,7 +39,7 @@ export default function MerchantLoginPage() {
 			await signIn(email, password);
 
 			toast.success('Success', 'Welcome to your merchant dashboard!');
-			router.push('/merchant/dashboard');
+			router.replace('/merchant/dashboard');
 		} catch (error: unknown) {
 			console.error('Login error:', error);
 

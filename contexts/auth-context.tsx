@@ -42,6 +42,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
 	useEffect(() => {
 		const unsubscribe = onAuthStateChanged(auth, async (user) => {
+			setLoading(true);
 			let wishlist;
 			if (user) {
 				await ensureUserInFirestore(user);
