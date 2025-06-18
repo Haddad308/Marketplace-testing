@@ -1,25 +1,24 @@
+'use client';
+
 import { ToastProvider } from '@/components/providers/toast-provider';
 import { ThemeProvider } from '@/components/theme-provider';
 import { FirebaseProvider } from '@/firebase/firebase-provider';
 import Navbar from '@/sections/Navbar';
-import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
+import { usePathname } from 'next/navigation';
 import type React from 'react';
 import './globals.css';
 
 const inter = Inter({ subsets: ['latin'] });
-
-export const metadata: Metadata = {
-	title: 'Merchify - Discover & Shop Services',
-	description:
-		'Browse, wishlist, and shop the best service deals from top sellers. Affiliate links, no direct purchases. Sellers can add and promote their services easily.',
-};
 
 export default function RootLayout({
 	children,
 }: Readonly<{
 	children: React.ReactNode;
 }>) {
+	const pathname = usePathname();
+	const isDashboard = pathname.startsWith('/merchant');
+
 	return (
 		<html lang="en" suppressHydrationWarning>
 			<head>
@@ -29,8 +28,8 @@ export default function RootLayout({
 				<ThemeProvider attribute="class" defaultTheme="light" enableSystem disableTransitionOnChange>
 					<FirebaseProvider>
 						<ToastProvider>
-							<Navbar />
-							<main className="container mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">{children}</main>
+							{!isDashboard && <Navbar />}
+							<main className={isDashboard ? '' : 'container mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8'}>{children}</main>
 						</ToastProvider>
 					</FirebaseProvider>
 				</ThemeProvider>

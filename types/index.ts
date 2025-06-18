@@ -2,6 +2,9 @@ import { User as FirebaseAuthUser } from 'firebase/auth';
 
 export type Product = {
 	id: string;
+	merchantId: string;
+	isArchived?: boolean;
+	views: number;
 	title: string;
 	business: string;
 	category: string;
@@ -16,6 +19,8 @@ export type Product = {
 	isPopular: boolean;
 	redirectLink: string;
 	badge?: string;
+	createdAt: any;
+	updatedAt: any;
 };
 
 export interface User extends FirebaseAuthUser {
@@ -27,4 +32,18 @@ export interface CategoryInfo {
 	icon: string;
 	description: string;
 	color: string;
+}
+
+export interface ProductFormData {
+	title: string;
+	business: string;
+	category: string;
+	image: File | null;
+	originalPrice: number;
+	discountedPrice: number;
+	discountPercentage: number;
+	location: string;
+	distance: string;
+	redirectLink: string;
+	badge?: string;
 }
