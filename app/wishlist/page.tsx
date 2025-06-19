@@ -83,6 +83,11 @@ export default function WishlistPage() {
 
 	return (
 		<>
+			<div className="mb-6">
+				<Link href="/" className="text-sm text-purple-600 hover:underline">
+					← Back to Deals
+				</Link>
+			</div>
 			<div className="mb-8 flex items-center justify-between">
 				<h1 className="text-3xl font-bold">My Wishlist</h1>
 				{wishlistItems.length > 0 && (

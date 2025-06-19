@@ -35,7 +35,7 @@ export default function TrendingSection() {
 	if (loading) {
 		return (
 			<section>
-				<div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+				<div className="mx-auto max-w-7xl">
 					<div className="mb-6 flex items-center gap-2">
 						<div className="h-8 w-48 animate-pulse rounded bg-gray-200"></div>
 						<div className="h-6 w-6 animate-pulse rounded bg-gray-200"></div>
@@ -52,7 +52,7 @@ export default function TrendingSection() {
 
 	return (
 		<section>
-			<div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+			<div className="mx-auto max-w-7xl">
 				{/* Section Header */}
 				<div className="mb-6 flex items-center gap-2">
 					<h2 className="text-2xl font-bold text-gray-900">Trending</h2>

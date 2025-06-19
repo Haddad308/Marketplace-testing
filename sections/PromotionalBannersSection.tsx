@@ -5,8 +5,8 @@ import Image from 'next/image';
 
 export default function PromotionalBanners() {
 	return (
-		<section className="bg-gray-50 py-8">
-			<div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+		<section className="py-8">
+			<div className="mx-auto max-w-7xl">
 				<div className="grid gap-6 md:grid-cols-2">
 					{/* Father's Day Banner */}
 					<div className="relative overflow-hidden rounded-lg bg-gradient-to-r from-blue-400 to-blue-600">
