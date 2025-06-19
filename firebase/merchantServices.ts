@@ -11,8 +11,7 @@ import {
 	updateDoc,
 	where,
 } from 'firebase/firestore';
-import { getDownloadURL, ref, uploadBytes } from 'firebase/storage';
-import { db, storage } from './firabase';
+import { db } from './firabase';
 
 export async function createProduct(merchantId: string, productData: ProductFormData): Promise<string> {
 	try {
@@ -69,6 +68,57 @@ export async function createProduct(merchantId: string, productData: ProductForm
 	}
 }
 
+export async function updateProduct(productId: string, updates: Partial<ProductFormData>): Promise<void> {
+	try {
+		const productRef = doc(db, 'products', productId);
+
+		const updateData: any = { ...updates };
+
+		// Handle image upload if a new image is provided
+		if (updates.image && updates.image instanceof File) {
+			// Get ImageKit auth params
+			const authRes = await fetch('/api/imagekit-auth');
+			const auth = await authRes.json();
+			const formData = new FormData();
+
+			formData.append('signature', auth.signature);
+			formData.append('expire', auth.expire.toString());
+			formData.append('token', auth.token);
+			formData.append('file', updates.image);
+			formData.append('fileName', `product_${Date.now()}`);
+			formData.append('publicKey', process.env.NEXT_PUBLIC_IMAGEKIT_PUBLIC_KEY!);
+
+			const uploadRes = await fetch('https://upload.imagekit.io/api/v1/files/upload', {
+				method: 'POST',
+				body: formData,
+			});
+
+			if (!uploadRes.ok) throw new Error('Image upload failed');
+
+			const result = await uploadRes.json();
+			updateData.image = result.url;
+		} else {
+			// Remove the image field if no new image is provided
+			delete updateData.image;
+		}
+
+		// Recalculate discount percentage if prices are updated
+		if (updates.originalPrice && updates.discountedPrice) {
+			updateData.discountPercentage = Math.round(
+				((updates.originalPrice - updates.discountedPrice) / updates.originalPrice) * 100
+			);
+		}
+
+		await updateDoc(productRef, {
+			...updateData,
+			updatedAt: serverTimestamp(),
+		});
+	} catch (error) {
+		console.error('Error updating product:', error);
+		throw error;
+	}
+}
+
 export async function getMerchantProducts(merchantId: string): Promise<Product[]> {
 	try {
 		const q = query(collection(db, 'products'), where('merchantId', '==', merchantId), orderBy('createdAt', 'desc'));
@@ -84,43 +134,11 @@ export async function getMerchantProducts(merchantId: string): Promise<Product[]
 	}
 }
 
-export async function updateProduct(productId: string, updates: Partial<ProductFormData>): Promise<void> {
-	try {
-		const productRef = doc(db, 'products', productId);
-
-		// Recalculate discount percentage if prices are updated
-		if (updates.originalPrice && updates.discountedPrice) {
-			updates.discountPercentage = Math.round(
-				((updates.originalPrice - updates.discountedPrice) / updates.originalPrice) * 100
-			);
-		}
-
-		await updateDoc(productRef, {
-			...updates,
-			updatedAt: serverTimestamp(),
-		});
-	} catch (error) {
-		console.error('Error updating product:', error);
-		throw error;
-	}
-}
-
 export async function deleteProduct(productId: string): Promise<void> {
 	try {
 		await deleteDoc(doc(db, 'products', productId));
 	} catch (error) {
 		console.error('Error deleting product:', error);
-		throw error;
-	}
-}
-
-export async function uploadProductImage(merchantId: string, file: File): Promise<string> {
-	try {
-		const imageRef = ref(storage, `products/${merchantId}/${Date.now()}_${file.name}`);
-		const uploadResult = await uploadBytes(imageRef, file);
-		return await getDownloadURL(uploadResult.ref);
-	} catch (error) {
-		console.error('Error uploading image:', error);
 		throw error;
 	}
 }
