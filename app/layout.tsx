@@ -29,7 +29,9 @@ export default function RootLayout({
 					<FirebaseProvider>
 						<ToastProvider>
 							{!isDashboard && <Navbar />}
-							<main className={isDashboard ? '' : 'container mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8'}>{children}</main>
+							<main className={isDashboard ? '' : 'container mx-auto max-w-7xl bg-gray-50 px-4 py-8 sm:px-6 lg:px-8'}>
+								{children}
+							</main>
 						</ToastProvider>
 					</FirebaseProvider>
 				</ThemeProvider>
