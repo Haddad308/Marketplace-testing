@@ -5,6 +5,7 @@ import WishlistLoginModal from '@/components/modals/WishlistLoginModal';
 import ProductGridSkeleton from '@/components/skeletons/ProductGridSkeleton';
 import { Button } from '@/components/ui/button';
 import { getProducts } from '@/firebase/productServices';
+import { toast } from '@/hooks/use-toast';
 import { useToggleFavorites } from '@/hooks/use-toggle-favorites';
 import { Product } from '@/types';
 import { useEffect, useState } from 'react';
@@ -14,7 +15,6 @@ export default function ProductsSection() {
 
 	const [products, setProducts] = useState<Product[] | null>(null);
 	const [loading, setLoading] = useState(true);
-	const [message, setmessage] = useState({ variant: '', message: '' });
 
 	useEffect(() => {
 		const fetchProducts = async () => {
@@ -22,7 +22,7 @@ export default function ProductsSection() {
 				const response = await getProducts();
 				setProducts(response);
 			} catch (error) {
-				setmessage({ variant: 'error', message: 'Failed to fetch products, Please try again later' });
+				toast.error('error', 'Failed to fetch products, Please try again later');
 			} finally {
 				setLoading(false);
 			}
