@@ -9,19 +9,37 @@ import WishlistLoginModal from '@/components/modals/WishlistLoginModal';
 import ProductDetailsSkeleton from '@/components/skeletons/ProductDetailsSkeleton';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
-import { getProductById } from '@/firebase/productServices';
+import { useAuth } from '@/contexts/auth-context';
+import { getProductById, incrementProductView } from '@/firebase/productServices';
+import { toast } from '@/hooks/use-toast';
 import { useToggleFavorites } from '@/hooks/use-toggle-favorites';
+import { useViewedProductsStore } from '@/stores/viewedProductsStore';
 import { Product } from '@/types';
 import { useParams } from 'next/navigation';
 
 export default function ProductPage() {
 	const { favorites, toggleFavorite, wishlistLoginModalOpen, setWishlistLoginModalOpen } = useToggleFavorites();
 
+	const { user } = useAuth();
+
 	const params = useParams();
 	const id = params.id as string;
 
 	const [product, setProduct] = useState<Product | null>(null);
 	const [loading, setLoading] = useState(true);
+	const { hasViewed, markAsViewed } = useViewedProductsStore();
+
+	useEffect(() => {
+		if (product) {
+			const isOwner = user?.uid === product.merchantId;
+			const alreadyViewed = hasViewed(product.id);
+
+			if (!isOwner && !alreadyViewed) {
+				incrementProductView(product.id).catch((err) => toast.error('Failed to increment product views:', err));
+				markAsViewed(product.id);
+			}
+		}
+	}, [product, user]);
 
 	useEffect(() => {
 		const fetchProduct = async () => {

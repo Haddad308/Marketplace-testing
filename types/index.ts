@@ -49,3 +49,9 @@ export interface ProductFormData {
 	redirectLink: string;
 	badge?: string;
 }
+
+export interface ViewedProductsState {
+	viewedProductIds: string[];
+	markAsViewed: (productId: string) => void;
+	hasViewed: (productId: string) => boolean;
+}

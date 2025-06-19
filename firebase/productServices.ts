@@ -6,11 +6,13 @@ import {
 	DocumentData,
 	getDoc,
 	getDocs,
+	increment,
 	limit,
 	orderBy,
 	query,
 	QueryDocumentSnapshot,
 	startAfter,
+	updateDoc,
 } from 'firebase/firestore';
 import { db } from './firabase';
 
@@ -128,5 +130,16 @@ export async function searchProducts(query: string, limit = 9) {
 		return products;
 	} catch (error) {
 		throw new Error(`Error searching products: ${error}`);
+	}
+}
+
+export async function incrementProductView(productId: string) {
+	try {
+		const productRef = doc(db, 'products', productId);
+		await updateDoc(productRef, {
+			views: increment(1),
+		});
+	} catch (error) {
+		throw new Error(`Error incrementing product views: ${error}`);
 	}
 }
