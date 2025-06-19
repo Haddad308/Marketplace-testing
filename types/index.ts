@@ -25,6 +25,8 @@ export type Product = {
 
 export interface User extends FirebaseAuthUser {
 	wishlist?: string[];
+	role?: 'admin' | 'merchant' | 'user';
+	createdAt?: any;
 }
 
 export interface CategoryInfo {

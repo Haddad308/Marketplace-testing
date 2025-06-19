@@ -9,10 +9,11 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useAuth } from '@/contexts/auth-context';
+import { getUserRole } from '@/firebase/userServices';
 import { toast } from '@/hooks/use-toast';
 
 export default function MerchantLoginPage() {
-	const { user, signIn } = useAuth();
+	const { user, signIn, signOut } = useAuth();
 
 	const [email, setEmail] = useState('');
 	const [password, setPassword] = useState('');
@@ -21,7 +22,7 @@ export default function MerchantLoginPage() {
 	const router = useRouter();
 
 	useEffect(() => {
-		if (user) {
+		if (user && user.role === 'merchant') {
 			router.push('/merchant/dashboard');
 		}
 	}, []);
@@ -38,8 +39,20 @@ export default function MerchantLoginPage() {
 			setIsLoading(true);
 			await signIn(email, password);
 
-			toast.success('Success', 'Welcome to your merchant dashboard!');
-			router.replace('/merchant/dashboard');
+			if (user) {
+				const role = await getUserRole(user.uid);
+
+				if (role !== 'merchant') {
+					await signOut();
+					toast.error('Access Denied', 'You are not authorized to access the merchant dashboard');
+					return;
+				}
+
+				toast.success("You're logged in", 'Welcome to your merchant dashboard!');
+				router.replace('/merchant/dashboard');
+			} else {
+				toast.error('Failed to sign in. Please try again.');
+			}
 		} catch (error: unknown) {
 			console.error('Login error:', error);
 

@@ -1,6 +1,6 @@
 'use client';
 
-import { ensureUserInFirestore, getUserWishlist } from '@/firebase/userServices';
+import { ensureUserInFirestore, getUserRole, getUserWishlist } from '@/firebase/userServices';
 import { User } from '@/types';
 import {
 	createUserWithEmailAndPassword,
@@ -46,16 +46,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 			let wishlist;
 			if (user) {
 				await ensureUserInFirestore(user);
+
 				wishlist = await getUserWishlist(user.uid);
-			}
-			if (!wishlist) {
-				setUser(user);
+
+				const role = await getUserRole(user.uid);
+
+				setUser({ ...user, role, wishlist } as User);
 			} else {
-				setUser({ ...user, wishlist: wishlist } as User);
+				setUser(null);
 			}
+
 			setLoading(false);
 		});
-
 		return () => unsubscribe();
 	}, []);
 

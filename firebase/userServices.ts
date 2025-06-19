@@ -1,19 +1,25 @@
 import { User } from '@/types';
 import { EmailAuthProvider, getAuth, reauthenticateWithCredential, updatePassword, updateProfile } from 'firebase/auth';
-import { arrayRemove, arrayUnion, doc, getDoc, setDoc, updateDoc } from 'firebase/firestore';
+import { arrayRemove, arrayUnion, doc, getDoc, serverTimestamp, setDoc, updateDoc } from 'firebase/firestore';
 import { db } from './firabase';
 
 export async function ensureUserInFirestore(user: User) {
 	const userRef = doc(db, 'users', user.uid);
+	const userSnap = await getDoc(userRef);
 
-	await setDoc(
-		userRef,
-		{
+	if (!userSnap.exists()) {
+		await setDoc(userRef, {
 			email: user.email,
-			displayName: user.displayName,
-		},
-		{ merge: true }
-	);
+			role: 'user',
+			createdAt: serverTimestamp(),
+		});
+	}
+}
+
+export async function getUserRole(userId: string) {
+	const userDoc = await getDoc(doc(db, 'users', userId));
+	const role = userDoc.data()?.role || 'user';
+	return role;
 }
 
 export async function updateUserProfileInfo(updates: { displayName?: string; photoURL?: string }) {

@@ -29,6 +29,9 @@ export default function MerchantLayout({ children }: { children: React.ReactNode
 	useEffect(() => {
 		if (!loading && !user && pathname !== '/merchant/login') {
 			router.push('/merchant/login');
+		} else if (user && user.role !== 'merchant') {
+			toast.error('Access Denied', 'You are not authorized to access the merchant dashboard');
+			router.push('/');
 		}
 	}, [user, loading, pathname, router]);
 
