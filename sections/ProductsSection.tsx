@@ -57,7 +57,7 @@ export default function ProductsSection() {
 	}
 
 	return (
-		<div className="mx-auto max-w-7xl py-8">
+		<section className="mx-auto max-w-7xl py-8">
 			{/* Products Grid */}
 			<div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
 				{products?.map((product) => (
@@ -94,6 +94,6 @@ export default function ProductsSection() {
 			{wishlistLoginModalOpen && (
 				<WishlistLoginModal isOpen={wishlistLoginModalOpen} onClose={setWishlistLoginModalOpen} />
 			)}
-		</div>
+		</section>
 	);
 }
