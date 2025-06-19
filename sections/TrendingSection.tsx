@@ -1,6 +1,7 @@
 'use client';
 
 import ProductCard from '@/components/cards/ProductCard';
+import WishlistLoginModal from '@/components/modals/WishlistLoginModal';
 import { Button } from '@/components/ui/button';
 import { getProducts } from '@/firebase/productServices';
 import { useToggleFavorites } from '@/hooks/use-toggle-favorites';
@@ -8,7 +9,8 @@ import type { Product } from '@/types';
 import { useEffect, useState } from 'react';
 
 export default function TrendingSection() {
-	const { favorites, toggleFavorite } = useToggleFavorites();
+	const { favorites, toggleFavorite, wishlistLoginModalOpen, setWishlistLoginModalOpen } = useToggleFavorites();
+
 	const [products, setProducts] = useState<Product[]>([]);
 	const [loading, setLoading] = useState(true);
 	const [showAll, setShowAll] = useState(false);
@@ -83,6 +85,9 @@ export default function TrendingSection() {
 					</div>
 				)}
 			</div>
+			{wishlistLoginModalOpen && (
+				<WishlistLoginModal isOpen={wishlistLoginModalOpen} onClose={setWishlistLoginModalOpen} />
+			)}
 		</section>
 	);
 }

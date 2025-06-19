@@ -83,13 +83,6 @@ export default function ProductsSection() {
 					</Button>
 				</div>
 			)}
-			{/* {hasMore && (
-				<div className="mt-4 flex justify-center">
-					<Button onClick={loadMoreProducts} disabled={loading}>
-						{loading ? 'Loading...' : 'Load More Products'}
-					</Button>
-				</div>
-			)} */}
 
 			{wishlistLoginModalOpen && (
 				<WishlistLoginModal isOpen={wishlistLoginModalOpen} onClose={setWishlistLoginModalOpen} />
