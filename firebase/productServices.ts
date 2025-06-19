@@ -1,11 +1,60 @@
+import { PAGE_SIZE } from '@/lib/constants';
 import { Product } from '@/types';
-import { addDoc, collection, doc, getDoc, getDocs } from 'firebase/firestore';
+import {
+	collection,
+	doc,
+	DocumentData,
+	getDoc,
+	getDocs,
+	limit,
+	orderBy,
+	query,
+	QueryDocumentSnapshot,
+	startAfter,
+} from 'firebase/firestore';
 import { db } from './firabase';
 
 export async function getProducts() {
 	try {
 		const snapshot = await getDocs(collection(db, 'products'));
 		return snapshot.docs.map((doc) => ({ id: doc.id, ...(doc.data() as Omit<Product, 'id'>) }));
+	} catch (error) {
+		throw new Error(`Error fetching products: ${error}`);
+	}
+}
+
+export async function getPaginatedProducts(pageSize = PAGE_SIZE, startAfterDoc?: QueryDocumentSnapshot<DocumentData>) {
+	try {
+		let q;
+
+		// Fetch one extra doc to check if more data exists
+		const realPageSize = pageSize + 1;
+
+		if (startAfterDoc) {
+			q = query(collection(db, 'products'), orderBy('createdAt', 'desc'), startAfter(startAfterDoc), limit(realPageSize));
+		} else {
+			q = query(collection(db, 'products'), orderBy('createdAt', 'desc'), limit(realPageSize));
+		}
+
+		const snapshot = await getDocs(q);
+		const docs = snapshot.docs;
+
+		// Check if we got more than we need
+		const hasMore = docs.length === realPageSize;
+
+		// Return only the pageSize number of docs
+		const visibleDocs = hasMore ? docs.slice(0, pageSize) : docs;
+
+		const products = visibleDocs.map((doc) => ({
+			id: doc.id,
+			...(doc.data() as Omit<Product, 'id'>),
+		}));
+
+		return {
+			products,
+			lastVisible: visibleDocs[visibleDocs.length - 1] ?? null,
+			hasMore,
+		};
 	} catch (error) {
 		throw new Error(`Error fetching products: ${error}`);
 	}
@@ -79,13 +128,5 @@ export async function searchProducts(query: string, limit = 9) {
 		return products;
 	} catch (error) {
 		throw new Error(`Error searching products: ${error}`);
-	}
-}
-
-export async function uploadProduct(product: Product) {
-	try {
-		await addDoc(collection(db, 'products'), product);
-	} catch (error) {
-		throw new Error(`Error uploading product: ${error}`);
 	}
 }
