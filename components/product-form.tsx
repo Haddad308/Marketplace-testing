@@ -42,7 +42,7 @@ export default function ProductForm({ mode, initialData }: ProductFormProps) {
 		title: initialData?.title || '',
 		business: initialData?.business || '',
 		category: initialData?.category || '',
-		image: null,
+		image: initialData?.image || null,
 		originalPrice: initialData?.originalPrice || 0,
 		discountedPrice: initialData?.discountedPrice || 0,
 		location: initialData?.location || '',

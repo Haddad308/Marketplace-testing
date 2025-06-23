@@ -40,7 +40,7 @@ export interface ProductFormData {
 	title: string;
 	business: string;
 	category: string;
-	image: File | null;
+	image: File | string | null;
 	originalPrice: number;
 	discountedPrice: number;
 	discountPercentage: number;
