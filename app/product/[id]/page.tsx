@@ -59,7 +59,7 @@ export default function ProductPage() {
 		return (
 			<div className="flex h-[50vh] flex-col items-center justify-center">
 				<h2 className="mb-2 text-2xl font-bold">Product not found</h2>
-				<p className="mb-4 text-gray-600">The product you`&apos;re looking for doesn`&apos;t exist or has been removed.</p>
+				<p className="mb-4 text-gray-600">The product you&apos;re looking for doesn&apos;t exist or has been removed.</p>
 				<Link href="/">
 					<Button>Back to Home</Button>
 				</Link>

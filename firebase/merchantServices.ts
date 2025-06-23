@@ -1,6 +1,7 @@
 import type { Product, ProductFormData } from '@/types';
 import {
 	addDoc,
+	arrayRemove,
 	collection,
 	deleteDoc,
 	doc,
@@ -137,6 +138,19 @@ export async function getMerchantProducts(merchantId: string): Promise<Product[]
 export async function deleteProduct(productId: string): Promise<void> {
 	try {
 		await deleteDoc(doc(db, 'products', productId));
+
+		// Query users who have this productId in their wishlist
+		const q = query(collection(db, 'users'), where('wishlist', 'array-contains', productId));
+		const snapshot = await getDocs(q);
+
+		// Remove the productId from each matched user's wishlist
+		const updatePromises = snapshot.docs.map((userDoc) =>
+			updateDoc(userDoc.ref, {
+				wishlist: arrayRemove(productId),
+			})
+		);
+
+		await Promise.all(updatePromises);
 	} catch (error) {
 		console.error('Error deleting product:', error);
 		throw error;
