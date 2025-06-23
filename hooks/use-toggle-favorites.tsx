@@ -39,7 +39,7 @@ export function useToggleFavorites() {
 			}
 		} catch (error) {
 			setFavorites(favorites);
-			setUser({ ...user, wishlist: newFavorites });
+			setUser({ ...user, wishlist: favorites });
 			toast.error(
 				'Error',
 				`Error ${wasFavorite ? 'removing' : 'adding'} product ${wasFavorite ? 'from' : 'to'} your wishlist: ${error}`
