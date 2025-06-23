@@ -24,10 +24,26 @@ export type Product = {
 };
 
 export interface User extends FirebaseAuthUser {
+	id?: string;
 	wishlist?: string[];
-	role?: 'admin' | 'merchant' | 'user';
+	role: 'admin' | 'merchant' | 'user';
+	permissions?: permission[];
 	createdAt?: any;
 }
+
+export type permission = 'add' | 'edit' | 'delete';
+
+export interface PaginatedUsers {
+	users: User[];
+	hasMore: boolean;
+	lastDoc: any;
+}
+
+export type UserData = {
+	wishlist: string[];
+	role: string;
+	permissions: Array<'add' | 'edit' | 'delete'>;
+};
 
 export interface CategoryInfo {
 	name?: string;

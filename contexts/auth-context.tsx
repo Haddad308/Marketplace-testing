@@ -1,6 +1,6 @@
 'use client';
 
-import { ensureUserInFirestore, getUserRole, getUserWishlist } from '@/firebase/userServices';
+import { ensureUserInFirestore, getUserData } from '@/firebase/userServices';
 import { User } from '@/types';
 import {
 	createUserWithEmailAndPassword,
@@ -43,15 +43,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 	useEffect(() => {
 		const unsubscribe = onAuthStateChanged(auth, async (user) => {
 			setLoading(true);
-			let wishlist;
 			if (user) {
-				await ensureUserInFirestore(user);
+				await ensureUserInFirestore(user as User);
 
-				wishlist = await getUserWishlist(user.uid);
+				const userData = await getUserData(user.uid);
 
-				const role = await getUserRole(user.uid);
-
-				setUser({ ...user, role, wishlist } as User);
+				setUser({
+					...user,
+					role: userData?.role,
+					wishlist: userData?.wishlist,
+					permissions: userData?.permissions,
+				} as User);
 			} else {
 				setUser(null);
 			}

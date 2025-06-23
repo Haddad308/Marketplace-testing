@@ -1,6 +1,7 @@
 import { CategoryInfo } from '@/types';
 
 export const PAGE_SIZE = 3;
+export const USERS_PAGE_SIZE = 5;
 
 export const categoryMetadata: Record<string, CategoryInfo> = {
 	'beauty-and-spas': {

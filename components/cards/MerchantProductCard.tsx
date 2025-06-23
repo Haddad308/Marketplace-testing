@@ -16,6 +16,7 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
+import { useAuth } from '@/contexts/auth-context';
 import { deleteProduct } from '@/firebase/merchantServices';
 import { toast } from '@/hooks/use-toast';
 import { Product } from '@/types';
@@ -27,8 +28,16 @@ type props = {
 };
 
 const MerchantProductCard = ({ product, setProducts }: props) => {
+	const { user } = useAuth();
+
 	const handleDeleteProduct = async (productId: string, productTitle: string) => {
 		try {
+			// Check permissions
+			if (!user?.permissions?.includes('delete')) {
+				toast.error('Access Denied', `You don't have permission to delete products`);
+				return;
+			}
+
 			await deleteProduct(productId);
 			setProducts((prev) => prev.filter((p) => p.id !== productId));
 			toast.success('Success', `"${productTitle}" has been deleted`);
@@ -91,40 +100,54 @@ const MerchantProductCard = ({ product, setProducts }: props) => {
 					</div>
 
 					<div className="flex items-center space-x-2 pt-2">
-						<Link
-							href={`/merchant/edit-product/${product.id}`}
-							className="flex-1 border-gray-600 text-gray-300 hover:bg-gray-700"
-						>
-							<Button size="sm" variant="outline" className="w-full">
+						{user?.permissions?.includes('edit') ? (
+							<Link
+								href={`/merchant/edit-product/${product.id}`}
+								className="flex-1 border-gray-600 text-gray-300 hover:bg-gray-700"
+							>
+								<Button size="sm" variant="outline" className="w-full">
+									<Edit className="mr-1 h-3 w-3" />
+									Edit
+								</Button>
+							</Link>
+						) : (
+							<Button size="sm" variant="outline" disabled className="flex-1 border-gray-600 text-gray-500">
 								<Edit className="mr-1 h-3 w-3" />
 								Edit
 							</Button>
-						</Link>
-						<AlertDialog>
-							<AlertDialogTrigger asChild>
-								<Button size="sm" variant="destructive" className="flex-1 bg-red-600 text-white hover:bg-red-700">
-									<Trash2 className="mr-1 h-3 w-3" />
-									Delete
-								</Button>
-							</AlertDialogTrigger>
-							<AlertDialogContent className="border-gray-700 bg-gray-800">
-								<AlertDialogHeader>
-									<AlertDialogTitle className="text-white">Delete Product</AlertDialogTitle>
-									<AlertDialogDescription className="text-gray-400">
-										Are you sure you want to delete &quot;{product.title}&quot;? This action cannot be undone.
-									</AlertDialogDescription>
-								</AlertDialogHeader>
-								<AlertDialogFooter>
-									<AlertDialogCancel className="border-gray-600 text-gray-300 hover:bg-gray-700">Cancel</AlertDialogCancel>
-									<AlertDialogAction
-										onClick={() => handleDeleteProduct(product.id, product.title)}
-										className="bg-red-600 hover:bg-red-700"
-									>
+						)}
+						{user?.permissions?.includes('delete') ? (
+							<AlertDialog>
+								<AlertDialogTrigger asChild>
+									<Button size="sm" variant="destructive" className="flex-1 bg-red-600 text-white hover:bg-red-700">
+										<Trash2 className="mr-1 h-3 w-3" />
 										Delete
-									</AlertDialogAction>
-								</AlertDialogFooter>
-							</AlertDialogContent>
-						</AlertDialog>
+									</Button>
+								</AlertDialogTrigger>
+								<AlertDialogContent className="border-gray-700 bg-gray-800">
+									<AlertDialogHeader>
+										<AlertDialogTitle className="text-white">Delete Product</AlertDialogTitle>
+										<AlertDialogDescription className="text-gray-400">
+											Are you sure you want to delete &quot;{product.title}&quot;? This action cannot be undone.
+										</AlertDialogDescription>
+									</AlertDialogHeader>
+									<AlertDialogFooter>
+										<AlertDialogCancel className="border-gray-600 text-gray-300 hover:bg-gray-700">Cancel</AlertDialogCancel>
+										<AlertDialogAction
+											onClick={() => handleDeleteProduct(product.id, product.title)}
+											className="bg-red-600 hover:bg-red-700"
+										>
+											Delete
+										</AlertDialogAction>
+									</AlertDialogFooter>
+								</AlertDialogContent>
+							</AlertDialog>
+						) : (
+							<Button size="sm" variant="outline" disabled className="flex-1 border-gray-600 text-gray-500">
+								<Trash2 className="mr-1 h-3 w-3" />
+								Delete
+							</Button>
+						)}
 					</div>
 				</div>
 			</CardContent>

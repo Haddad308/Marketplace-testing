@@ -21,6 +21,7 @@ interface DashboardStats {
 
 export default function MerchantDashboard() {
 	const { user } = useAuth();
+
 	const [stats, setStats] = useState<DashboardStats>({
 		totalProducts: 0,
 		activeProducts: 0,
@@ -120,12 +121,14 @@ export default function MerchantDashboard() {
 					Welcome back, {user?.displayName || user?.email?.split('@')[0] || 'Merchant'}!
 				</h2>
 				<p className="mb-4 text-blue-100">Here&apos;s an overview of your products and performance.</p>
-				<Link href="/merchant/add-product">
-					<Button className="bg-white text-blue-600 hover:bg-gray-100">
-						<Plus className="mr-2 h-4 w-4" />
-						Add New Product
-					</Button>
-				</Link>
+				{user?.permissions?.some((perm) => perm === 'add' || perm === 'edit') && (
+					<Link href="/merchant/add-product">
+						<Button className="bg-white text-blue-600 hover:bg-gray-100">
+							<Plus className="mr-2 h-4 w-4" />
+							Add New Product
+						</Button>
+					</Link>
+				)}
 			</div>
 
 			{/* Stats Grid */}
@@ -217,12 +220,14 @@ export default function MerchantDashboard() {
 						<CardDescription className="text-gray-400">Common tasks and shortcuts</CardDescription>
 					</CardHeader>
 					<CardContent className="space-y-3">
-						<Link href="/merchant/add-product">
-							<Button className="w-full justify-start bg-blue-600 hover:bg-blue-700">
-								<Plus className="mr-2 h-4 w-4" />
-								Add New Product
-							</Button>
-						</Link>
+						{user?.permissions?.some((perm) => perm === 'add' || perm === 'edit') && (
+							<Link href="/merchant/add-product">
+								<Button className="w-full justify-start bg-blue-600 hover:bg-blue-700">
+									<Plus className="mr-2 h-4 w-4" />
+									Add New Product
+								</Button>
+							</Link>
+						)}
 						<Link href="/merchant/manage-products">
 							<Button variant="outline" className="w-full justify-start border-gray-600 text-gray-300 hover:bg-gray-700">
 								<Package className="mr-2 h-4 w-4" />

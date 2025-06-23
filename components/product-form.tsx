@@ -98,6 +98,13 @@ export default function ProductForm({ mode, initialData }: ProductFormProps) {
 			return;
 		}
 
+		// Check permissions
+		const requiredPermission = mode === 'create' ? 'add' : 'edit';
+		if (!user.permissions?.includes(requiredPermission)) {
+			toast.error('Access Denied', `You don't have permission to ${mode} products`);
+			return;
+		}
+
 		// Validation
 		if (!formData.title || !formData.business || !formData.category) {
 			toast.error('Error', 'Please fill in all required fields');

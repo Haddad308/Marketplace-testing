@@ -2,7 +2,7 @@
 
 import type React from 'react';
 
-import { LayoutDashboard, LogOut, Menu, Package, Plus, Store, X } from 'lucide-react';
+import { LayoutDashboard, LogOut, Menu, Package, Plus, Store, Users, X } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
@@ -14,24 +14,39 @@ import { toast } from '@/hooks/use-toast';
 import { getInitials } from '@/lib/helpers';
 import { IKContext } from 'imagekitio-react';
 
-const navigation = [
-	{ name: 'Dashboard', href: '/merchant/dashboard', icon: LayoutDashboard },
-	{ name: 'Add Product', href: '/merchant/add-product', icon: Plus },
-	{ name: 'Manage Products', href: '/merchant/manage-products', icon: Package },
-];
-
 export default function MerchantLayout({ children }: { children: React.ReactNode }) {
 	const { user, signOut, loading } = useAuth();
 	const [sidebarOpen, setSidebarOpen] = useState(false);
 	const router = useRouter();
 	const pathname = usePathname();
 
+	const navigation = [
+		{ name: 'Dashboard', href: '/merchant/dashboard', icon: LayoutDashboard },
+		...(user?.permissions?.some((perm) => perm === 'add' || perm === 'edit')
+			? [{ name: 'Add Product', href: '/merchant/add-product', icon: Plus }]
+			: []),
+		{ name: 'Manage Products', href: '/merchant/manage-products', icon: Package },
+		...(user?.role === 'admin' ? [{ name: 'Manage Users', href: '/merchant/manage-users', icon: Users }] : []),
+	];
+
 	useEffect(() => {
 		if (!loading && !user && pathname !== '/merchant/login') {
 			router.push('/merchant/login');
-		} else if (user && user.role !== 'merchant') {
+		} else if (user && !['admin', 'merchant'].includes(user.role)) {
 			toast.error('Access Denied', 'You are not authorized to access the merchant dashboard');
 			router.push('/');
+		} else if (
+			pathname === '/merchant/add-product' &&
+			!user?.permissions?.some((perm) => perm === 'add' || perm === 'edit')
+		) {
+			toast.error('Access Denied', "You don't have permission to add products");
+			router.push('/merchant/dashboard');
+		} else if (pathname.includes('/merchant/edit-product') && !user?.permissions?.includes('edit')) {
+			toast.error('Access Denied', "You don't have permission to edit products");
+			router.push('/merchant/dashboard');
+		} else if (pathname === '/merchant/manage-users' && user?.role !== 'admin') {
+			toast.error('Access Denied', 'Only admin accounts can access this page');
+			router.push('/merchant/dashboard');
 		}
 	}, [user, loading, pathname, router]);
 

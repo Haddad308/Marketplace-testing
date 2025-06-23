@@ -123,12 +123,14 @@ export default function ManageServicesPage() {
 					<h2 className="text-2xl font-bold text-white">Manage Products</h2>
 					<p className="text-gray-400">View and manage all your product listings</p>
 				</div>
-				<Link href="/merchant/add-product">
-					<Button className="bg-blue-600 hover:bg-blue-700">
-						<Plus className="mr-2 h-4 w-4" />
-						Add New Product
-					</Button>
-				</Link>
+				{user?.permissions?.some((perm) => perm === 'add' || perm === 'edit') && (
+					<Link href="/merchant/add-product">
+						<Button className="bg-blue-600 hover:bg-blue-700">
+							<Plus className="mr-2 h-4 w-4" />
+							Add New Product
+						</Button>
+					</Link>
+				)}
 			</div>
 
 			{/* Filters */}
