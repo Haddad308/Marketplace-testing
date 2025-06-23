@@ -11,9 +11,10 @@ import { Label } from '@/components/ui/label';
 import { useAuth } from '@/contexts/auth-context';
 import { getUserRole } from '@/firebase/userServices';
 import { toast } from '@/hooks/use-toast';
+import { FaGoogle } from 'react-icons/fa';
 
 export default function MerchantLoginPage() {
-	const { user, signIn, signOut } = useAuth();
+	const { user, signIn, signInWithGoogle } = useAuth();
 
 	const [email, setEmail] = useState('');
 	const [password, setPassword] = useState('');
@@ -22,7 +23,7 @@ export default function MerchantLoginPage() {
 	const router = useRouter();
 
 	useEffect(() => {
-		if (user && user.role === 'merchant') {
+		if (user && ['merchant', 'admin'].includes(user.role)) {
 			router.push('/merchant/dashboard');
 		}
 	}, []);
@@ -37,22 +38,19 @@ export default function MerchantLoginPage() {
 
 		try {
 			setIsLoading(true);
-			await signIn(email, password);
 
-			if (user) {
-				const role = await getUserRole(user.uid);
+			const userCredential = await signIn(email, password);
+			const signedInUser = userCredential.user;
+			const role = await getUserRole(signedInUser.uid);
 
-				if (role !== 'merchant') {
-					await signOut();
-					toast.error('Access Denied', 'You are not authorized to access the merchant dashboard');
-					return;
-				}
-
-				toast.success("You're logged in", 'Welcome to your merchant dashboard!');
-				router.replace('/merchant/dashboard');
-			} else {
-				toast.error('Failed to sign in. Please try again.');
+			if (['merchant', 'admin'].includes(role)) {
+				toast.error('Access Denied', 'You are not authorized to access the merchant dashboard');
+				router.push('/');
+				return;
 			}
+
+			toast.success("You're logged in", 'Welcome to your merchant dashboard!');
+			router.replace('/merchant/dashboard');
 		} catch (error: unknown) {
 			console.error('Login error:', error);
 
@@ -74,6 +72,30 @@ export default function MerchantLoginPage() {
 			}
 
 			toast.error('Login Failed', errorMessage);
+		} finally {
+			setIsLoading(false);
+		}
+	};
+
+	const handleGoogleSignIn = async () => {
+		try {
+			setIsLoading(true);
+
+			const userCredential = await signInWithGoogle();
+			const signedInUser = userCredential.user;
+			const role = await getUserRole(signedInUser.uid);
+
+			if (['merchant', 'admin'].includes(role)) {
+				toast.error('Access Denied', 'You are not authorized to access the merchant dashboard');
+				router.push('/');
+				return;
+			}
+
+			toast.success("You're logged in", 'Welcome to your merchant dashboard!');
+			router.replace('/merchant/dashboard');
+		} catch (error) {
+			console.error('Error signing in with Google:', error);
+			toast.error('Error', `Error signing in with Google: ${error}`);
 		} finally {
 			setIsLoading(false);
 		}
@@ -168,6 +190,23 @@ export default function MerchantLoginPage() {
 								)}
 							</Button>
 						</form>
+						<div className="relative my-6 flex items-center">
+							<div className="flex-grow border-t border-gray-700" />
+							<span className="mx-4 text-sm text-gray-400">OR</span>
+							<div className="flex-grow border-t border-gray-700" />
+						</div>
+						<div className="space-y-4 pt-2">
+							<Button
+								variant="outline"
+								className="flex w-full items-center justify-center space-x-3 border-gray-600 bg-gray-700 py-3 text-white hover:bg-gray-600 hover:text-white"
+								onClick={handleGoogleSignIn}
+								disabled={isLoading}
+								type="button"
+							>
+								<FaGoogle className="h-5 w-5 text-red-500" />
+								<span>Continue with Google</span>
+							</Button>
+						</div>
 					</CardContent>
 				</Card>
 

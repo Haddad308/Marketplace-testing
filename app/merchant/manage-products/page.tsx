@@ -202,12 +202,14 @@ export default function ManageServicesPage() {
 							{products.length === 0 ? "You haven't created any products yet." : 'No products match your current filters.'}
 						</p>
 						{products.length === 0 ? (
-							<Link href="/merchant/add-product">
-								<Button className="bg-blue-600 hover:bg-blue-700">
-									<Plus className="mr-2 h-4 w-4" />
-									Create Your First Product
-								</Button>
-							</Link>
+							user?.permissions?.some((perm) => perm === 'add' || perm === 'edit') && (
+								<Link href="/merchant/add-product">
+									<Button className="bg-blue-600 hover:bg-blue-700">
+										<Plus className="mr-2 h-4 w-4" />
+										Create Your First Product
+									</Button>
+								</Link>
+							)
 						) : (
 							<Button
 								variant="outline"

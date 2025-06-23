@@ -10,6 +10,7 @@ import {
 	onAuthStateChanged,
 	signInWithEmailAndPassword,
 	signInWithPopup,
+	UserCredential,
 } from 'firebase/auth';
 import { createContext, Dispatch, SetStateAction, useContext, useEffect, useState, type ReactNode } from 'react';
 import { auth } from '../firebase/firabase';
@@ -20,9 +21,9 @@ interface AuthContextType {
 	loading: boolean;
 	setLoading: Dispatch<SetStateAction<boolean>>;
 	signUp: (email: string, password: string) => Promise<void>;
-	signIn: (email: string, password: string) => Promise<void>;
+	signIn: (email: string, password: string) => Promise<UserCredential>;
 	signInWithFacebook: () => Promise<void>;
-	signInWithGoogle: () => Promise<void>;
+	signInWithGoogle: () => Promise<UserCredential>;
 	signOut: () => Promise<void>;
 }
 
@@ -68,7 +69,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 	};
 
 	const signIn = async (email: string, password: string) => {
-		await signInWithEmailAndPassword(auth, email, password);
+		return await signInWithEmailAndPassword(auth, email, password);
 	};
 
 	const signInWithFacebook = async () => {
@@ -78,7 +79,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
 	const signInWithGoogle = async () => {
 		const provider = new GoogleAuthProvider();
-		await signInWithPopup(auth, provider);
+		return await signInWithPopup(auth, provider);
 	};
 
 	const signOut = async () => {

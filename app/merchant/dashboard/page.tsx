@@ -178,11 +178,13 @@ export default function MerchantDashboard() {
 							<div className="py-8 text-center">
 								<Package className="mx-auto mb-4 h-12 w-12 text-gray-600" />
 								<p className="mb-4 text-gray-400">No products yet</p>
-								<Link href="/merchant/add-product">
-									<Button size="sm" className="bg-blue-600 hover:bg-blue-700">
-										Create Your First Product
-									</Button>
-								</Link>
+								{user?.permissions?.some((perm) => perm === 'add' || perm === 'edit') && (
+									<Link href="/merchant/add-product">
+										<Button size="sm" className="bg-blue-600 hover:bg-blue-700">
+											Create Your First Product
+										</Button>
+									</Link>
+								)}
 							</div>
 						) : (
 							<div className="space-y-4">
