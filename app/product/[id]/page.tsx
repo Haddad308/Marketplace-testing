@@ -1,6 +1,6 @@
 'use client';
 
-import { ExternalLink, MapPin, Star, Store } from 'lucide-react';
+import { ExternalLink, MapPin, Store } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
@@ -76,7 +76,7 @@ export default function ProductPage() {
 					</Link>
 				</div>
 
-				<div className="grid gap-8 md:grid-cols-2">
+				<div className="grid items-center gap-8 md:grid-cols-2 lg:gap-20">
 					{/* Product Image */}
 					<div className="relative aspect-square overflow-hidden rounded-lg bg-gray-100">
 						<Image
@@ -113,7 +113,7 @@ export default function ProductPage() {
 								<span>{product.business}</span>
 							</div>
 
-							<div className="mb-4 flex items-center gap-2">
+							{/* <div className="mb-4 flex items-center gap-2">
 								<div className="flex items-center">
 									{[...Array(5)].map((_, i) => (
 										<Star
@@ -124,7 +124,7 @@ export default function ProductPage() {
 								</div>
 								<span className="text-sm font-medium text-gray-700">{product.rating}</span>
 								<span className="text-sm text-gray-500">({product.reviewCount} reviews)</span>
-							</div>
+							</div> */}
 
 							<div className="mb-6">
 								<div className="mb-2 flex items-baseline gap-2">
@@ -189,9 +189,9 @@ export default function ProductPage() {
 								<h3 className="mb-2 text-lg font-medium text-gray-800">Deal Highlights</h3>
 								<ul className="list-inside list-disc space-y-1 text-gray-600">
 									<li>Save {product.discountPercentage}% off the regular price</li>
-									<li>
+									{/* <li>
 										Highly rated with {product.rating} stars ({product.reviewCount} reviews)
-									</li>
+									</li> */}
 									<li>
 										Located in {product.location} {product.distance && `(${product.distance})`}
 									</li>
@@ -200,7 +200,7 @@ export default function ProductPage() {
 							</div>
 						</div>
 
-						<div className="mt-6">
+						{/* <div className="mt-6">
 							<h3 className="mb-2 text-lg font-medium text-gray-800">Fine Print</h3>
 							<div className="rounded-md bg-gray-50 p-4 text-sm text-gray-700">
 								<p>• Promotional value expires 120 days after purchase.</p>
@@ -208,7 +208,7 @@ export default function ProductPage() {
 								<p>• Limit 1 per person, may buy 1 additional as gift.</p>
 								<p>• All sales are final.</p>
 							</div>
-						</div>
+						</div> */}
 					</div>
 				</div>
 			</div>
