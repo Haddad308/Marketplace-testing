@@ -50,11 +50,8 @@ export function SignInModal() {
 		const { name, value, type, checked } = e.target;
 
 		// Always update the form data first
-		if (type === 'checkbox') {
-			setFormData((prev) => ({ ...prev, [name]: checked }));
-		} else {
-			setFormData((prev) => ({ ...prev, [name]: value }));
-		}
+
+		setFormData((prev) => ({ ...prev, [name]: value }));
 
 		const fieldError: ValidationError = {};
 
@@ -205,6 +202,7 @@ export function SignInModal() {
 								onChange={handleInputChange}
 								className="w-full rounded-md border-gray-300 py-3"
 								onBlur={() => handleTouched('email')}
+								onInput={() => handleTouched('email')}
 							/>
 							{renderError('email')}
 
