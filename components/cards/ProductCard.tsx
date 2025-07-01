@@ -1,7 +1,7 @@
 'use client';
 
 import { Product } from '@/types';
-import { Heart, MapPin, Star } from 'lucide-react';
+import { Heart, MapPin } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { Button } from '../ui/button';
@@ -87,13 +87,13 @@ export default function ProductCard({ product, isFavorite, onToggleFavorite }: P
 				</div>
 
 				{/* Rating */}
-				<div className="mb-4 flex items-center">
+				{/* <div className="mb-4 flex items-center">
 					<div className="flex items-center">
 						<Star className="h-4 w-4 fill-current text-yellow-400" />
 						<span className="ml-1 text-sm font-medium text-gray-900">{rating}</span>
 					</div>
 					<span className="ml-2 text-sm text-gray-500">({reviewCount.toLocaleString()})</span>
-				</div>
+				</div> */}
 
 				{/* Pricing */}
 				<div className="flex items-center justify-between">
