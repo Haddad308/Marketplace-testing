@@ -47,7 +47,7 @@ export function SignInModal() {
 	const [touched, setTouched] = useState<Touched | null>(null);
 
 	const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-		const { name, value, type, checked } = e.target;
+		const { name, value } = e.target;
 
 		// Always update the form data first
 
