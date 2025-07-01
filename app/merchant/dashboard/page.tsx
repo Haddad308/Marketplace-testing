@@ -1,6 +1,6 @@
 'use client';
 
-import { Calendar, Eye, LucideProps, Package, Plus, Star, TrendingUp } from 'lucide-react';
+import { Calendar, Eye, LucideProps, Package, Plus, Star, TrendingUp, Users } from 'lucide-react';
 import { ForwardRefExoticComponent, RefAttributes, useEffect, useState } from 'react';
 
 import { Button } from '@/components/ui/button';
@@ -9,6 +9,7 @@ import { useAuth } from '@/contexts/auth-context';
 import { getMerchantProducts } from '@/firebase/merchantServices';
 import { toast } from '@/hooks/use-toast';
 import type { Product } from '@/types';
+import Image from 'next/image';
 import Link from 'next/link';
 
 interface DashboardStats {
@@ -191,7 +192,13 @@ export default function MerchantDashboard() {
 								{stats.recentProducts.map((product) => (
 									<div key={product.id} className="flex items-center space-x-4 rounded-lg bg-gray-700 p-3">
 										<div className="flex h-12 w-12 items-center justify-center rounded-lg bg-gray-600">
-											<Package className="h-6 w-6 text-gray-400" />
+											<Image
+												src={product.image}
+												alt={product.title}
+												width={48}
+												height={48}
+												className="h-12 w-12 rounded-sm text-gray-400"
+											/>
 										</div>
 										<div className="min-w-0 flex-1">
 											<p className="truncate text-sm font-medium text-white">{product.title}</p>
@@ -221,7 +228,7 @@ export default function MerchantDashboard() {
 						<CardTitle className="text-white">Quick Actions</CardTitle>
 						<CardDescription className="text-gray-400">Common tasks and shortcuts</CardDescription>
 					</CardHeader>
-					<CardContent className="space-y-3">
+					<CardContent className="flex flex-col gap-y-4">
 						{user?.permissions?.some((perm) => perm === 'add' || perm === 'edit') && (
 							<Link href="/merchant/add-product">
 								<Button className="w-full justify-start bg-blue-600 hover:bg-blue-700">
@@ -236,6 +243,14 @@ export default function MerchantDashboard() {
 								Manage Products
 							</Button>
 						</Link>
+						{user?.role === 'admin' && (
+							<Link href="/merchant/manage-users">
+								<Button variant="outline" className="w-full justify-start border-gray-600 text-gray-300 hover:bg-gray-700">
+									<Users className="mr-2 h-4 w-4" />
+									Manage Users
+								</Button>
+							</Link>
+						)}
 						<Button
 							variant="outline"
 							className="w-full justify-start border-gray-600 text-gray-300 hover:bg-gray-700"
