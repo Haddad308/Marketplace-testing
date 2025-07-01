@@ -14,7 +14,7 @@ import { toast } from '@/hooks/use-toast';
 import { FaGoogle } from 'react-icons/fa';
 
 export default function MerchantLoginPage() {
-	const { user, signIn, signInWithGoogle } = useAuth();
+	const { user, signIn, signOut, signInWithGoogle } = useAuth();
 
 	const [email, setEmail] = useState('');
 	const [password, setPassword] = useState('');
@@ -26,7 +26,7 @@ export default function MerchantLoginPage() {
 		if (user && ['merchant', 'admin'].includes(user.role)) {
 			router.push('/merchant/dashboard');
 		}
-	}, []);
+	}, [user]);
 
 	const handleLogin = async (e: React.FormEvent) => {
 		e.preventDefault();
@@ -43,14 +43,13 @@ export default function MerchantLoginPage() {
 			const signedInUser = userCredential.user;
 			const role = await getUserRole(signedInUser.uid);
 
-			if (['merchant', 'admin'].includes(role)) {
-				toast.error('Access Denied', 'You are not authorized to access the merchant dashboard');
-				router.push('/');
-				return;
+			if (!['merchant', 'admin'].includes(role)) {
+				await signOut();
+				router.replace('/?fromDashboard=true');
+			} else {
+				toast.success("You're logged in", 'Welcome to your merchant dashboard!');
+				router.replace('/merchant/dashboard');
 			}
-
-			toast.success("You're logged in", 'Welcome to your merchant dashboard!');
-			router.replace('/merchant/dashboard');
 		} catch (error: unknown) {
 			console.error('Login error:', error);
 
@@ -85,14 +84,13 @@ export default function MerchantLoginPage() {
 			const signedInUser = userCredential.user;
 			const role = await getUserRole(signedInUser.uid);
 
-			if (['merchant', 'admin'].includes(role)) {
-				toast.error('Access Denied', 'You are not authorized to access the merchant dashboard');
-				router.push('/');
-				return;
+			if (!['merchant', 'admin'].includes(role)) {
+				await signOut();
+				router.replace('/?fromDashboard=true');
+			} else {
+				toast.success("You're logged in", 'Welcome to your merchant dashboard!');
+				router.replace('/merchant/dashboard');
 			}
-
-			toast.success("You're logged in", 'Welcome to your merchant dashboard!');
-			router.replace('/merchant/dashboard');
 		} catch (error) {
 			console.error('Error signing in with Google:', error);
 			toast.error('Error', `Error signing in with Google: ${error}`);

@@ -4,8 +4,10 @@ import ProductCard from '@/components/cards/ProductCard';
 import WishlistLoginModal from '@/components/modals/WishlistLoginModal';
 import { Button } from '@/components/ui/button';
 import { getProducts } from '@/firebase/productServices';
+import { toast } from '@/hooks/use-toast';
 import { useToggleFavorites } from '@/hooks/use-toggle-favorites';
 import type { Product } from '@/types';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
 export default function TrendingSection() {
@@ -14,6 +16,25 @@ export default function TrendingSection() {
 	const [products, setProducts] = useState<Product[]>([]);
 	const [loading, setLoading] = useState(true);
 	const [showAll, setShowAll] = useState(false);
+
+	const router = useRouter();
+	const searchParams = useSearchParams();
+
+	const fromDashboard = searchParams.get('fromDashboard') || '';
+
+	useEffect(() => {
+		if (fromDashboard === 'true') {
+			toast.error(
+				'Access Denied',
+				'Please log in from this page as a user. The dashboard portal login is for merchants only.'
+			);
+
+			// Remove 'fromDashboard' from the URL
+			const params = new URLSearchParams(searchParams.toString());
+			params.delete('fromDashboard');
+			router.replace('?' + params.toString());
+		}
+	}, [fromDashboard, router, searchParams]);
 
 	useEffect(() => {
 		const fetchTrendingProducts = async () => {
