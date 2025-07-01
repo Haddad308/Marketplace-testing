@@ -47,7 +47,7 @@ const MerchantProductCard = ({ product, setProducts }: props) => {
 		}
 	};
 	return (
-		<Card className="border-gray-700 bg-gray-800 transition-colors hover:border-gray-600">
+		<Card className="rounded-md border-gray-700 bg-gray-800 py-0 pb-4 transition-colors hover:border-gray-600">
 			<CardContent className="p-0">
 				{/* Image */}
 				<div className="relative h-48 w-full">
@@ -55,7 +55,7 @@ const MerchantProductCard = ({ product, setProducts }: props) => {
 						src={product.image || '/placeholder.svg?height=200&width=300'}
 						alt={product.title}
 						fill
-						className="rounded-t-lg object-cover"
+						className="rounded-t-sm object-cover"
 					/>
 					{product.badge && <Badge className="absolute top-2 left-2 bg-blue-600">{product.badge}</Badge>}
 					<div className="absolute top-2 right-2 flex space-x-1">
