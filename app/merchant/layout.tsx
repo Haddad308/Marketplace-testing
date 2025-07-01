@@ -104,7 +104,7 @@ export default function MerchantLayout({ children }: { children: React.ReactNode
 
 				{/* Sidebar */}
 				<div
-					className={`fixed inset-y-0 left-0 z-50 w-64 transform bg-gray-800 transition-transform duration-300 ease-in-out lg:relative lg:translate-x-0 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'} flex flex-col`}
+					className={`fixed inset-y-0 left-0 z-50 h-[100vh] w-64 transform bg-gray-800 transition-transform duration-300 ease-in-out lg:sticky lg:translate-x-0 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'} flex flex-col`}
 				>
 					{/* Sidebar Header */}
 					<div className="flex h-16 flex-shrink-0 items-center justify-between bg-gray-900 px-6">
