@@ -40,10 +40,8 @@ export default function TrendingSection() {
 		const fetchTrendingProducts = async () => {
 			try {
 				const allProducts = await getProducts();
-				// Filter for trending/popular products and limit to 6 initially
-				const trendingProducts = allProducts
-					.filter((product) => product.isPopular)
-					.slice(0, showAll ? allProducts.length : 6);
+				// Get the top 3 most viewed products
+				const trendingProducts = allProducts.sort((a, b) => (b.views ?? 0) - (a.views ?? 0)).slice(0, 3);
 				setProducts(trendingProducts);
 			} catch (error) {
 				console.error('Error fetching trending products:', error);
