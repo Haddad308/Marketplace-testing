@@ -40,6 +40,7 @@ import { toast } from '@/hooks/use-toast';
 import { USERS_PAGE_SIZE } from '@/lib/constants';
 import { getInitials } from '@/lib/helpers';
 import { DateRange, User } from '@/types';
+import { DocumentData, QueryDocumentSnapshot } from 'firebase/firestore';
 
 export default function ManageUsersPage() {
 	const { user: currentUser } = useAuth();
@@ -50,7 +51,7 @@ export default function ManageUsersPage() {
 	const [dateRange, setDateRange] = useState<DateRange | undefined>();
 	const [currentPage, setCurrentPage] = useState(1);
 	const [hasMore, setHasMore] = useState(false);
-	const [lastDoc, setLastDoc] = useState<any>(null);
+	const [lastDoc, setLastDoc] = useState<QueryDocumentSnapshot<DocumentData> | null>(null);
 	const [selectedUser, setSelectedUser] = useState<User | null>(null);
 	const [permissionsDialogOpen, setPermissionsDialogOpen] = useState(false);
 	const [tempPermissions, setTempPermissions] = useState<string[]>([]);

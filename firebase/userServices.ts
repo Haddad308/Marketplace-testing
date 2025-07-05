@@ -6,11 +6,13 @@ import {
 	arrayUnion,
 	collection,
 	doc,
+	DocumentData,
 	getDoc,
 	getDocs,
 	limit,
 	orderBy,
 	query,
+	QueryDocumentSnapshot,
 	serverTimestamp,
 	setDoc,
 	startAfter,
@@ -96,7 +98,7 @@ export async function addToWishlist(userId: string, productId: string): Promise<
 
 export async function getUsers(
 	pageSize = USERS_PAGE_SIZE,
-	lastDoc?: any,
+	lastDoc?: QueryDocumentSnapshot<DocumentData> | null,
 	searchQuery?: string,
 	roleFilter?: string,
 	dateRange?: DateRange
