@@ -1,6 +1,6 @@
 'use client';
 
-import { ExternalLink, Heart, MapPin, Star } from 'lucide-react';
+import { ExternalLink, Heart, MapPin } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useState } from 'react';
@@ -67,10 +67,10 @@ export default function WishlistProductCard({ product, onRemove }: WishlistProdu
 			<div className="p-4">
 				<div className="mb-1 flex items-center justify-between">
 					<span className="text-xs font-medium text-purple-600">{product.category}</span>
-					<div className="flex items-center">
+					{/* <div className="flex items-center">
 						<Star className="mr-1 h-3 w-3 fill-yellow-400 text-yellow-400" />
 						<span className="text-xs font-medium">{product.rating}</span>
-					</div>
+					</div> */}
 				</div>
 
 				<Link href={`/product/${product.id}`} className="block">
@@ -83,19 +83,25 @@ export default function WishlistProductCard({ product, onRemove }: WishlistProdu
 
 				<div className="mb-2 flex items-center text-xs text-gray-500">
 					<MapPin className="mr-1 h-3 w-3" />
-					{product.location} {product.distance && `(${product.distance})`}
+					{product.location}
 				</div>
 
 				<div className="mb-3 flex items-baseline gap-2">
-					<span className="text-lg font-bold text-gray-900">${product.discountedPrice.toFixed(2)}</span>
-					<span className="text-sm text-gray-500 line-through">${product.originalPrice.toFixed(2)}</span>
-					<span className="text-xs font-medium text-green-600">-{product.discountPercentage}%</span>
+					{typeof product.discountedPrice === 'number' && typeof product.discountPercentage === 'number' ? (
+						<>
+							<span className="text-lg font-bold text-gray-900">${product.discountedPrice.toFixed(2)}</span>
+							<span className="text-sm text-gray-500 line-through">${product.originalPrice.toFixed(2)}</span>
+							<span className="text-xs font-medium text-green-600">-{product.discountPercentage}%</span>
+						</>
+					) : (
+						<span className="text-lg font-bold text-gray-900">${product.originalPrice.toFixed(2)}</span>
+					)}
 				</div>
 
 				<Button
 					size="sm"
 					className="w-full bg-green-600 hover:bg-green-700"
-					onClick={() => window.open(product.redirectLink, '_blank')}
+					onClick={() => window.open(product.affiliateLink, '_blank')}
 				>
 					<ExternalLink className="mr-1 h-3 w-3" />
 					View Deal

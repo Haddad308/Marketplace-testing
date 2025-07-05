@@ -63,7 +63,7 @@ const MerchantProductCard = ({ product, setProducts }: props) => {
 							size="sm"
 							variant="secondary"
 							className="h-8 w-8 p-0"
-							onClick={() => window.open(product.redirectLink, '_blank')}
+							onClick={() => window.open(product.affiliateLink, '_blank')}
 						>
 							<ExternalLink className="h-3 w-3" />
 						</Button>
@@ -88,10 +88,14 @@ const MerchantProductCard = ({ product, setProducts }: props) => {
 					{/* <div className="flex items-center justify-between"> */}
 					<div className="flex items-center justify-between">
 						<div className="flex items-center space-x-2">
-							<span className="text-lg font-bold text-white">${product.discountedPrice}</span>
-							<span className="text-sm text-gray-400 line-through">${product.originalPrice}</span>
+							<span className="text-lg font-bold text-white">${product.discountedPrice ?? product.originalPrice}</span>
+							{product.discountedPrice != null && (
+								<span className="text-sm text-gray-400 line-through">${product.originalPrice}</span>
+							)}
 						</div>
-						<span className="text-xs text-green-400">-{product.discountPercentage}% OFF</span>
+						{product.discountedPrice != null && product.discountPercentage != null && (
+							<span className="text-xs text-green-400">-{product.discountPercentage}% OFF</span>
+						)}
 					</div>
 					{/* <div className="text-right">
 							<div className="flex items-center text-sm text-yellow-400">⭐ {product.rating || 'N/A'}</div>

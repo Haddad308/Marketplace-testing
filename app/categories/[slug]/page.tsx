@@ -65,20 +65,17 @@ export default function CategoryPage() {
 
 		switch (sortBy) {
 			case 'price-low':
-				sorted.sort((a, b) => a.discountedPrice - b.discountedPrice);
+				sorted.sort((a, b) => (a.discountedPrice ?? 0) - (b.discountedPrice ?? 0));
 				break;
 			case 'price-high':
-				sorted.sort((a, b) => b.discountedPrice - a.discountedPrice);
+				sorted.sort((a, b) => (b.discountedPrice ?? 0) - (a.discountedPrice ?? 0));
 				break;
 			case 'discount':
-				sorted.sort((a, b) => b.discountPercentage - a.discountPercentage);
+				sorted.sort((a, b) => (b.discountPercentage ?? 0) - (a.discountPercentage ?? 0));
 				break;
-			case 'rating':
-				sorted.sort((a, b) => b.rating - a.rating);
-				break;
-			case 'popular':
-				sorted.sort((a, b) => (b.isPopular ? 1 : 0) - (a.isPopular ? 1 : 0));
-				break;
+			// case 'rating':
+			// 	sorted.sort((a, b) => b.rating - a.rating);
+			// 	break;
 			default:
 				// Keep original order for relevance
 				break;

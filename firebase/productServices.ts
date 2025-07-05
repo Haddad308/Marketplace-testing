@@ -104,7 +104,7 @@ export async function getPopularProducts(limit: number = 3) {
 		const snapshot = await getDocs(productsRef);
 		const products = snapshot.docs
 			.map((doc) => ({ id: doc.id, ...(doc.data() as Omit<Product, 'id'>) }))
-			// .sort((a, b) => (b.popularity ?? 0) - (a.popularity ?? 0))
+			.sort((a, b) => (b.views ?? 0) - (a.views ?? 0))
 			.slice(0, limit);
 		return products;
 	} catch (error) {

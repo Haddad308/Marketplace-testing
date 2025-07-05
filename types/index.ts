@@ -2,25 +2,23 @@ import { User as FirebaseAuthUser } from 'firebase/auth';
 
 export type Product = {
 	id: string;
-	merchantId: string;
-	isArchived?: boolean;
-	views: number;
 	title: string;
 	business: string;
 	category: string;
 	image: string;
 	originalPrice: number;
-	discountedPrice: number;
-	discountPercentage: number;
-	rating: number;
-	reviewCount: number;
+	discountedPrice?: number;
+	discountPercentage?: number;
 	location: string;
-	distance: string;
-	isPopular: boolean;
-	redirectLink: string;
+	phone: string;
+	description: string;
+	affiliateLink: string;
 	badge?: string;
+	merchantId: string;
 	createdAt: any;
 	updatedAt: any;
+	isArchived?: boolean;
+	views?: number;
 };
 
 export interface User extends FirebaseAuthUser {
@@ -56,14 +54,42 @@ export interface ProductFormData {
 	title: string;
 	business: string;
 	category: string;
-	image: File | string | null;
+	image: File | null;
 	originalPrice: number;
-	discountedPrice: number;
-	discountPercentage: number;
+	discountedPrice?: number;
+	discountPercentage?: number;
 	location: string;
-	distance: string;
-	redirectLink: string;
+	phone: string;
+	description: string;
+	affiliateLink: string;
 	badge?: string;
+}
+
+export interface FormErrors {
+	title?: string;
+	business?: string;
+	category?: string;
+	image?: string;
+	originalPrice?: string;
+	discountedPrice?: string;
+	location?: string;
+	phone?: string;
+	description?: string;
+	affiliateLink?: string;
+	submit?: string;
+}
+
+export interface TouchedFields {
+	title: boolean;
+	business: boolean;
+	category: boolean;
+	image: boolean;
+	originalPrice: boolean;
+	discountedPrice: boolean;
+	location: boolean;
+	phone: boolean;
+	description: boolean;
+	affiliateLink: boolean;
 }
 
 export interface ViewedProductsState {

@@ -25,8 +25,7 @@ export default function ProductCard({ product, isFavorite, onToggleFavorite }: P
 		// rating,
 		// reviewCount,
 		location,
-		distance,
-		redirectLink,
+		affiliateLink,
 		badge,
 	} = product;
 
@@ -82,8 +81,6 @@ export default function ProductCard({ product, isFavorite, onToggleFavorite }: P
 				<div className="mb-3 flex items-center text-sm text-gray-600">
 					<MapPin className="mr-1 h-4 w-4" />
 					<span>{location}</span>
-					<span className="mx-2">•</span>
-					<span>{distance}</span>
 				</div>
 
 				{/* Rating */}
@@ -97,17 +94,25 @@ export default function ProductCard({ product, isFavorite, onToggleFavorite }: P
 
 				{/* Pricing */}
 				<div className="flex items-center justify-between">
-					<div className="flex items-center space-x-2">
-						<span className="text-lg font-bold text-purple-600">${discountedPrice.toFixed(2)}</span>
-						<span className="text-sm text-gray-500 line-through">${originalPrice.toFixed(2)}</span>
-					</div>
-					<div className="rounded-full bg-green-100 px-2 py-1 text-xs font-medium text-green-800">
-						-{discountPercentage}%
-					</div>
+					{typeof discountedPrice === 'number' && typeof discountPercentage === 'number' ? (
+						<>
+							<div className="flex items-center space-x-2">
+								<span className="text-lg font-bold text-purple-600">${discountedPrice.toFixed(2)}</span>
+								<span className="text-sm text-gray-500 line-through">${originalPrice.toFixed(2)}</span>
+							</div>
+							<div className="rounded-full bg-green-100 px-2 py-1 text-xs font-medium text-green-800">
+								-{discountPercentage}%
+							</div>
+						</>
+					) : (
+						<div className="flex items-center space-x-2">
+							<span className="text-lg font-bold text-purple-600">${originalPrice.toFixed(2)}</span>
+						</div>
+					)}
 				</div>
 
 				{/* CTA Button */}
-				<Link href={redirectLink || `/product/${id}`} className="flex flex-1 items-end">
+				<Link href={affiliateLink || `/product/${id}`} className="flex flex-1 items-end">
 					<Button className="mt-4 w-full rounded-lg bg-purple-600 py-2.5 font-medium text-white transition-colors duration-200 hover:bg-purple-700">
 						View Deal
 					</Button>

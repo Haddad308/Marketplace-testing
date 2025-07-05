@@ -2,18 +2,20 @@
 
 import type React from 'react';
 
-import { DollarSign, ExternalLink, MapPin, Upload, X } from 'lucide-react';
+import { DollarSign, ExternalLink, Phone, Upload, X } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { LocationSearch } from '@/components/ui/location-search';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useAuth } from '@/contexts/auth-context';
 import { createProduct, updateProduct } from '@/firebase/merchantServices';
 import { toast } from '@/hooks/use-toast';
-import type { Product, ProductFormData } from '@/types';
+import type { FormErrors, Product, ProductFormData, TouchedFields } from '@/types';
+import { Textarea } from './ui/textarea';
 
 const categories = [
 	'Beauty & Spas',
@@ -37,32 +39,209 @@ export default function ProductForm({ mode, initialData }: ProductFormProps) {
 	const router = useRouter();
 	const [isSubmitting, setIsSubmitting] = useState(false);
 	const [imagePreview, setImagePreview] = useState<string | null>(initialData?.image || null);
+	const [submitError, setSubmitError] = useState<string>('');
 
 	const [formData, setFormData] = useState<ProductFormData>({
 		title: initialData?.title || '',
 		business: initialData?.business || '',
 		category: initialData?.category || '',
-		image: initialData?.image || null,
+		image: null,
 		originalPrice: initialData?.originalPrice || 0,
-		discountedPrice: initialData?.discountedPrice || 0,
+		discountedPrice: initialData?.discountedPrice || undefined,
 		location: initialData?.location || '',
-		distance: initialData?.distance || '',
-		redirectLink: initialData?.redirectLink || '',
+		phone: initialData?.phone || '',
+		description: initialData?.description || '',
+		affiliateLink: initialData?.affiliateLink || '',
 		badge: initialData?.badge || '',
-		discountPercentage: initialData?.discountPercentage || 0,
 	});
 
+	// Validation functions
+	const validateField = (field: keyof ProductFormData, value: unknown): string | undefined => {
+		switch (field) {
+			case 'title': {
+				const val = typeof value === 'string' ? value : '';
+				if (!val.trim()) return 'Product title is required';
+				if (val.trim().length < 3) return 'Title must be at least 3 characters';
+				if (val.trim().length > 100) return 'Title must be less than 100 characters';
+				break;
+			}
+			case 'business': {
+				const val = typeof value === 'string' ? value : '';
+				if (!val.trim()) return 'Business name is required';
+				if (val.trim().length < 2) return 'Business name must be at least 2 characters';
+				if (val.trim().length > 80) return 'Business name must be less than 80 characters';
+				break;
+			}
+			case 'category': {
+				const val = typeof value === 'string' ? value : '';
+				if (!val.trim()) return 'Category is required';
+				break;
+			}
+			case 'image': {
+				if (mode === 'create' && !value && !imagePreview) return 'Product image is required';
+				break;
+			}
+			case 'originalPrice': {
+				const val = typeof value === 'number' ? value : 0;
+				if (!val || val <= 0) return 'Original price must be greater than 0';
+				if (val > 999999) return 'Price cannot exceed $999,999';
+				break;
+			}
+			case 'discountedPrice': {
+				if (value !== undefined && value !== null && value !== '') {
+					const val = typeof value === 'number' ? value : 0;
+					if (val <= 0) return 'Discounted price must be greater than 0';
+					if (val >= formData.originalPrice) return 'Discounted price must be less than original price';
+					if (val > 999999) return 'Price cannot exceed $999,999';
+				}
+				break;
+			}
+			case 'location': {
+				const val = typeof value === 'string' ? value : '';
+				if (!val.trim()) return 'Location is required';
+				break;
+			}
+			case 'phone': {
+				const val = typeof value === 'string' ? value : '';
+				if (!val.trim()) return 'Phone number is required';
+				const phoneRegex = /^[+]?[1-9][\d]{0,15}$/;
+				const cleanPhone = val.replace(/[\s\-$.]/g, '');
+				if (!phoneRegex.test(cleanPhone) && cleanPhone.length < 10) return 'Please enter a valid phone number';
+				break;
+			}
+			case 'description': {
+				const val = typeof value === 'string' ? value : '';
+				if (!val.trim()) return 'Product description is required';
+				if (val.trim().length < 10) return 'Description must be at least 10 characters';
+				if (val.trim().length > 1000) return 'Description must be less than 1000 characters';
+				break;
+			}
+			case 'affiliateLink': {
+				const val = typeof value === 'string' ? value : '';
+				if (!val.trim()) return 'Affiliate link is required';
+				try {
+					new URL(val);
+				} catch {
+					return 'Please enter a valid URL';
+				}
+				break;
+			}
+		}
+		return undefined;
+	};
+
+	const [errors, setErrors] = useState<FormErrors>(() => {
+		const initialErrors: FormErrors = {};
+		Object.keys(formData).forEach((key) => {
+			const field = key as keyof ProductFormData;
+			const error = validateField(field, formData[field]);
+			if (error) {
+				initialErrors[field as keyof FormErrors] = error;
+			}
+		});
+		return initialErrors;
+	});
+
+	const [touched, setTouched] = useState<TouchedFields>({
+		title: false,
+		business: false,
+		category: false,
+		image: false,
+		originalPrice: false,
+		discountedPrice: false,
+		location: false,
+		phone: false,
+		description: false,
+		affiliateLink: false,
+	});
+
+	// Validate all fields
+	const validateForm = (): FormErrors => {
+		const newErrors: FormErrors = {};
+
+		Object.keys(formData).forEach((key) => {
+			const field = key as keyof ProductFormData;
+			// Only add errors for fields that exist in FormErrors
+			if (field in errors) {
+				const error = validateField(field, formData[field]);
+				if (error) {
+					newErrors[field as keyof FormErrors] = error;
+				}
+			}
+		});
+
+		return newErrors;
+	};
+
+	// Check if form has errors
+	const hasErrors = (): boolean => {
+		const currentErrors = validateForm();
+		return Object.keys(currentErrors).length > 0;
+	};
+
+	// Handle field changes
 	const handleInputChange = (field: keyof ProductFormData, value: string | number | File | null) => {
 		setFormData((prev) => ({
 			...prev,
 			[field]: value,
+		}));
+
+		// Clear submit error when user starts typing
+		if (submitError) {
+			setSubmitError('');
+		}
+
+		// Validate field if it's been touched
+		if (field in touched && touched[field as keyof TouchedFields]) {
+			const error = validateField(field, value);
+			setErrors((prev) => ({
+				...prev,
+				[field]: error,
+			}));
+		}
+	};
+
+	// Handle field blur (mark as touched)
+	const handleFieldBlur = (field: keyof TouchedFields) => {
+		setTouched((prev) => ({
+			...prev,
+			[field]: true,
+		}));
+
+		// Validate field when it loses focus
+		const error = validateField(field, formData[field]);
+		setErrors((prev) => ({
+			...prev,
+			[field]: error,
 		}));
 	};
 
 	const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
 		const file = e.target.files?.[0];
 		if (file) {
+			// Validate file size (max 10MB)
+			if (file.size > 10 * 1024 * 1024) {
+				setErrors((prev) => ({
+					...prev,
+					image: 'Image size must be less than 10MB',
+				}));
+				return;
+			}
+
+			// Validate file type
+			if (!file.type.startsWith('image/')) {
+				setErrors((prev) => ({
+					...prev,
+					image: 'Please select a valid image file',
+				}));
+				return;
+			}
+
 			setFormData((prev) => ({ ...prev, image: file }));
+			setErrors((prev) => ({
+				...prev,
+				image: undefined,
+			}));
 
 			// Create preview
 			const reader = new FileReader();
@@ -75,54 +254,66 @@ export default function ProductForm({ mode, initialData }: ProductFormProps) {
 
 	const removeImage = () => {
 		setFormData((prev) => ({ ...prev, image: null }));
-		setImagePreview(null);
+		setImagePreview(mode === 'edit' ? initialData?.image || null : null);
+
+		if (mode === 'create') {
+			setErrors((prev) => ({
+				...prev,
+				image: 'Product image is required',
+			}));
+		}
 	};
 
 	const calculateDiscount = () => {
-		if (formData.originalPrice > 0 && formData.discountedPrice > 0) {
+		if (
+			formData.originalPrice > 0 &&
+			formData.discountedPrice !== null &&
+			formData.discountedPrice !== undefined &&
+			formData.discountedPrice > 0
+		) {
 			return Math.round(((formData.originalPrice - formData.discountedPrice) / formData.originalPrice) * 100);
 		}
 		return 0;
 	};
 
+	// Update discount percentage when prices change
+	useEffect(() => {
+		const discount = calculateDiscount();
+		setFormData((prev) => ({
+			...prev,
+			discountPercentage: discount,
+		}));
+	}, [formData.originalPrice, formData.discountedPrice]);
+
 	const handleSubmit = async (e: React.FormEvent) => {
 		e.preventDefault();
-
-		if (!formData.image) {
-			toast.error('Product image is required');
-			return;
-		}
+		setSubmitError('');
 
 		if (!user) {
-			toast.error('Error', 'You must be logged in to save a product');
+			setSubmitError('You must be logged in to save a product');
 			return;
 		}
 
 		// Check permissions
 		const requiredPermission = mode === 'create' ? 'add' : 'edit';
 		if (!user.permissions?.includes(requiredPermission)) {
-			toast.error('Access Denied', `You don't have permission to ${mode} products`);
+			setSubmitError(`You don't have permission to ${mode} products`);
 			return;
 		}
 
-		// Validation
-		if (!formData.title || !formData.business || !formData.category) {
-			toast.error('Error', 'Please fill in all required fields');
-			return;
-		}
+		// Mark all fields as touched
+		const allTouched = Object.keys(touched).reduce((acc, key) => {
+			acc[key as keyof TouchedFields] = true;
+			return acc;
+		}, {} as TouchedFields);
+		setTouched(allTouched);
 
-		if (formData.originalPrice <= 0 || formData.discountedPrice <= 0) {
-			toast.error('Error', 'Please enter valid prices');
-			return;
-		}
+		// Validate form
+		const formErrors = validateForm();
+		setErrors(formErrors);
 
-		if (formData.discountedPrice >= formData.originalPrice) {
-			toast.error('Error', 'Discounted price must be less than original price');
-			return;
-		}
-
-		if (!formData.redirectLink) {
-			toast.error('Error', 'Please provide a redirect link');
+		if (Object.keys(formErrors).length > 0) {
+			setSubmitError('Please fix the errors above before submitting');
 			return;
 		}
 
@@ -131,16 +322,16 @@ export default function ProductForm({ mode, initialData }: ProductFormProps) {
 
 			if (mode === 'create') {
 				await createProduct(user.uid, formData);
-				toast.success('Success', 'Product created successfully!');
+				toast.success('Product created successfully!');
 			} else if (mode === 'edit' && initialData) {
 				await updateProduct(initialData.id, formData);
-				toast.success('Success', 'Product updated successfully!');
+				toast.success('Product updated successfully!');
 			}
 
 			router.push('/merchant/manage-products');
 		} catch (error) {
 			console.error(`Error ${mode === 'create' ? 'creating' : 'updating'} product:`, error);
-			toast.error('Error', `Failed to ${mode === 'create' ? 'create' : 'update'} product. Please try again.`);
+			setSubmitError(`Failed to ${mode === 'create' ? 'create' : 'update'} product. Please try again.`);
 		} finally {
 			setIsSubmitting(false);
 		}
@@ -159,9 +350,10 @@ export default function ProductForm({ mode, initialData }: ProductFormProps) {
 						placeholder="e.g., 60-Minute Deep Tissue Massage"
 						value={formData.title}
 						onChange={(e) => handleInputChange('title', e.target.value)}
-						className="border-gray-600 bg-gray-700 text-white placeholder-gray-400"
-						required
+						onBlur={() => handleFieldBlur('title')}
+						className={`border-gray-600 bg-gray-700 text-white placeholder-gray-400 ${errors.title && touched.title ? 'border-red-500' : ''}`}
 					/>
+					{errors.title && touched.title && <span className="text-sm text-red-400">{errors.title}</span>}
 				</div>
 
 				<div className="space-y-2">
@@ -173,9 +365,12 @@ export default function ProductForm({ mode, initialData }: ProductFormProps) {
 						placeholder="e.g., Relaxation Spa & Wellness"
 						value={formData.business}
 						onChange={(e) => handleInputChange('business', e.target.value)}
-						className="border-gray-600 bg-gray-700 text-white placeholder-gray-400"
-						required
+						onBlur={() => handleFieldBlur('business')}
+						className={`border-gray-600 bg-gray-700 text-white placeholder-gray-400 ${
+							errors.business && touched.business ? 'border-red-500' : ''
+						}`}
 					/>
+					{errors.business && touched.business && <span className="text-sm text-red-400">{errors.business}</span>}
 				</div>
 			</div>
 
@@ -185,10 +380,21 @@ export default function ProductForm({ mode, initialData }: ProductFormProps) {
 					<Label htmlFor="category" className="text-gray-300">
 						Category *
 					</Label>
-					<Select value={formData.category} onValueChange={(value) => handleInputChange('category', value)}>
-						<SelectTrigger className="border-gray-600 bg-gray-700 text-white">
-							<SelectValue placeholder="Select a category" />
-						</SelectTrigger>
+
+					<Select
+						value={formData.category}
+						onValueChange={(value) => {
+							handleInputChange('category', value);
+						}}
+					>
+						<div onBlur={() => handleFieldBlur('category')}>
+							<SelectTrigger
+								className={`border-gray-600 bg-gray-700 text-white ${errors.category && touched.category ? 'border-red-500' : ''}`}
+							>
+								<SelectValue placeholder="Select a category" />
+							</SelectTrigger>
+						</div>
+
 						<SelectContent>
 							{categories.map((category) => (
 								<SelectItem key={category} value={category}>
@@ -197,6 +403,7 @@ export default function ProductForm({ mode, initialData }: ProductFormProps) {
 							))}
 						</SelectContent>
 					</Select>
+					{errors.category && touched.category && <span className="text-sm text-red-400">{errors.category}</span>}
 				</div>
 
 				<div className="space-y-2">
@@ -224,104 +431,151 @@ export default function ProductForm({ mode, initialData }: ProductFormProps) {
 						<Input
 							id="originalPrice"
 							type="number"
-							step="0.01"
 							min="0"
 							placeholder="100.00"
 							value={formData.originalPrice || ''}
 							onChange={(e) => handleInputChange('originalPrice', Number.parseFloat(e.target.value) || 0)}
-							className="border-gray-600 bg-gray-700 pl-10 text-white placeholder-gray-400"
-							required
+							onBlur={() => handleFieldBlur('originalPrice')}
+							className={`[appearance:textfield] border-gray-600 bg-gray-700 pl-10 text-white placeholder-gray-400 [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none ${
+								errors.originalPrice && touched.originalPrice ? 'border-red-500' : ''
+							}`}
 						/>
 					</div>
+					{errors.originalPrice && touched.originalPrice && (
+						<span className="text-sm text-red-400">{errors.originalPrice}</span>
+					)}
 				</div>
 
 				<div className="space-y-2">
 					<Label htmlFor="discountedPrice" className="text-gray-300">
-						Discounted Price * ($)
+						Discounted Price (Optional) ($)
 					</Label>
 					<div className="relative">
 						<DollarSign className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 transform text-gray-400" />
 						<Input
 							id="discountedPrice"
 							type="number"
-							step="0.01"
 							min="0"
 							placeholder="50.00"
 							value={formData.discountedPrice || ''}
-							onChange={(e) => handleInputChange('discountedPrice', Number.parseFloat(e.target.value) || 0)}
-							className="border-gray-600 bg-gray-700 pl-10 text-white placeholder-gray-400"
-							required
+							onChange={(e) => {
+								const value = e.target.value === '' ? null : Number.parseFloat(e.target.value) || 0;
+								handleInputChange('discountedPrice', value);
+							}}
+							onBlur={() => handleFieldBlur('discountedPrice')}
+							className={`[appearance:textfield] border-gray-600 bg-gray-700 pl-10 text-white placeholder-gray-400 [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none ${
+								errors.discountedPrice && touched.discountedPrice ? 'border-red-500' : ''
+							}`}
 						/>
 					</div>
+					{errors.discountedPrice && touched.discountedPrice && (
+						<span className="text-sm text-red-400">{errors.discountedPrice}</span>
+					)}
 				</div>
 
 				<div className="space-y-2">
 					<Label className="text-gray-300">Discount Percentage</Label>
 					<div className="flex h-10 items-center rounded-md border border-gray-600 bg-gray-700 px-3">
-						<span className="font-medium text-green-400">{calculateDiscount()}% OFF</span>
+						<span className="font-medium text-green-400">
+							{calculateDiscount() > 0 ? `${calculateDiscount()}% OFF` : 'No discount'}
+						</span>
 					</div>
 				</div>
 			</div>
 
-			{/* Location */}
+			{/* Location and Phone */}
 			<div className="grid gap-6 md:grid-cols-2">
 				<div className="space-y-2">
-					<Label htmlFor="location" className="text-gray-300">
-						Location *
-					</Label>
-					<div className="relative">
-						<MapPin className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 transform text-gray-400" />
-						<Input
-							id="location"
-							placeholder="e.g., Downtown Chicago"
-							value={formData.location}
-							onChange={(e) => handleInputChange('location', e.target.value)}
-							className="border-gray-600 bg-gray-700 pl-10 text-white placeholder-gray-400"
-							required
-						/>
-					</div>
+					<Label className="text-gray-300">Location *</Label>
+					<LocationSearch
+						value={formData.location}
+						onValueChange={(value) => {
+							handleInputChange('location', value);
+						}}
+						onBlur={() => handleFieldBlur('location')}
+						placeholder="Select location..."
+						error={!!errors.location && touched.location}
+					/>
+					{errors.location && touched.location && <span className="text-sm text-red-400">{errors.location}</span>}
 				</div>
 
 				<div className="space-y-2">
-					<Label htmlFor="distance" className="text-gray-300">
-						Distance (Optional)
+					<Label htmlFor="phone" className="text-gray-300">
+						Phone Number *
 					</Label>
-					<Input
-						id="distance"
-						placeholder="e.g., 2.5 miles"
-						value={formData.distance}
-						onChange={(e) => handleInputChange('distance', e.target.value)}
-						className="border-gray-600 bg-gray-700 text-white placeholder-gray-400"
-					/>
+					<div className="relative">
+						<Phone className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 transform text-gray-400" />
+						<Input
+							id="phone"
+							type="tel"
+							placeholder="(555) 123-4567"
+							value={formData.phone}
+							onChange={(e) => handleInputChange('phone', e.target.value)}
+							onBlur={() => handleFieldBlur('phone')}
+							className={`border-gray-600 bg-gray-700 pl-10 text-white placeholder-gray-400 ${
+								errors.phone && touched.phone ? 'border-red-500' : ''
+							}`}
+						/>
+					</div>
+					{errors.phone && touched.phone && <span className="text-sm text-red-400">{errors.phone}</span>}
 				</div>
 			</div>
 
-			{/* Redirect Link */}
+			{/* Description */}
 			<div className="space-y-2">
-				<Label htmlFor="redirectLink" className="text-gray-300">
-					Booking/Purchase Link *
+				<Label htmlFor="description" className="text-gray-300">
+					Product Description *
+				</Label>
+				<Textarea
+					id="description"
+					placeholder="Describe your product in detail..."
+					value={formData.description}
+					onChange={(e) => handleInputChange('description', e.target.value)}
+					onBlur={() => handleFieldBlur('description')}
+					rows={4}
+					className={`resize-none border-gray-600 bg-gray-700 text-white placeholder-gray-400 ${
+						errors.description && touched.description ? 'border-red-500' : ''
+					}`}
+				/>
+				<div className="flex justify-between text-xs text-gray-400">
+					<span>{formData.description.length}/1000 characters</span>
+				</div>
+				{errors.description && touched.description && <span className="text-sm text-red-400">{errors.description}</span>}
+			</div>
+
+			{/* Affiliate Link */}
+			<div className="space-y-2">
+				<Label htmlFor="affiliateLink" className="text-gray-300">
+					Affiliate Link *
 				</Label>
 				<div className="relative">
 					<ExternalLink className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 transform text-gray-400" />
 					<Input
-						id="redirectLink"
+						id="affiliateLink"
 						type="url"
-						placeholder="https://your-booking-site.com/product"
-						value={formData.redirectLink}
-						onChange={(e) => handleInputChange('redirectLink', e.target.value)}
-						className="border-gray-600 bg-gray-700 pl-10 text-white placeholder-gray-400"
-						required
+						placeholder="https://your-affiliate-link.com"
+						value={formData.affiliateLink}
+						onChange={(e) => handleInputChange('affiliateLink', e.target.value)}
+						onBlur={() => handleFieldBlur('affiliateLink')}
+						className={`border-gray-600 bg-gray-700 pl-10 text-white placeholder-gray-400 ${
+							errors.affiliateLink && touched.affiliateLink ? 'border-red-500' : ''
+						}`}
 					/>
 				</div>
 				<p className="text-xs text-gray-400">
 					This is where customers will be redirected when they click &quot;View Deal&quot;
 				</p>
+				{errors.affiliateLink && touched.affiliateLink && (
+					<span className="text-sm text-red-400">{errors.affiliateLink}</span>
+				)}
 			</div>
 
 			{/* Image Upload */}
 			<div className="space-y-2">
-				<Label className="text-gray-300">Product Image *</Label>
-				<div className="rounded-lg border-2 border-dashed border-gray-600 p-6">
+				<Label className="text-gray-300">Product Image {mode === 'create' ? '*' : ''}</Label>
+				<div
+					className={`rounded-lg border-2 border-dashed border-gray-600 p-6 ${errors.image && touched.image ? 'border-red-500' : ''}`}
+				>
 					{imagePreview ? (
 						<div className="relative">
 							<img src={imagePreview || '/placeholder.svg'} alt="Preview" className="h-48 w-full rounded-lg object-cover" />
@@ -342,7 +596,15 @@ export default function ProductForm({ mode, initialData }: ProductFormProps) {
 						</div>
 					)}
 				</div>
+				{errors.image && touched.image && <span className="text-sm text-red-400">{errors.image}</span>}
 			</div>
+
+			{/* Submit Error */}
+			{submitError && (
+				<div className="rounded-md border border-red-500 bg-red-900/20 p-3">
+					<span className="text-sm text-red-400">{submitError}</span>
+				</div>
+			)}
 
 			{/* Submit Button */}
 			<div className="flex justify-end space-x-4 pt-6">
@@ -354,7 +616,11 @@ export default function ProductForm({ mode, initialData }: ProductFormProps) {
 				>
 					Cancel
 				</Button>
-				<Button type="submit" disabled={isSubmitting} className="bg-blue-600 text-white hover:bg-blue-700">
+				<Button
+					type="submit"
+					disabled={isSubmitting || hasErrors()}
+					className="bg-blue-600 text-white hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
+				>
 					{isSubmitting ? (
 						<>
 							<div className="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />

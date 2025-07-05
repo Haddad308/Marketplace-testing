@@ -43,15 +43,15 @@ export async function createProduct(merchantId: string, productData: ProductForm
 			imageUrl = result.url;
 		}
 
-		// Calculate discount percentage
-		const discountPercentage = Math.round(
-			((productData.originalPrice - productData.discountedPrice) / productData.originalPrice) * 100
-		);
+		// If discountedPrice is undefined, remove it from updateData
+		if (productData.discountedPrice === undefined) {
+			delete productData.discountedPrice;
+			delete productData.discountPercentage;
+		}
 
 		const newProduct = {
 			...productData,
 			image: imageUrl,
-			discountPercentage,
 			merchantId,
 			rating: 0,
 			reviewCount: 0,
@@ -103,11 +103,10 @@ export async function updateProduct(productId: string, updates: Partial<ProductF
 			delete updateData.image;
 		}
 
-		// Recalculate discount percentage if prices are updated
-		if (updates.originalPrice && updates.discountedPrice) {
-			updateData.discountPercentage = Math.round(
-				((updates.originalPrice - updates.discountedPrice) / updates.originalPrice) * 100
-			);
+		// If discountedPrice is undefined, remove it from updateData
+		if (updateData.discountedPrice === undefined) {
+			delete updateData.discountedPrice;
+			delete updateData.discountPercentage;
 		}
 
 		await updateDoc(productRef, {

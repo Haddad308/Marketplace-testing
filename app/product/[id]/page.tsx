@@ -102,7 +102,7 @@ export default function ProductPage() {
 								</span>
 								<div className="flex items-center text-sm text-gray-500">
 									<MapPin className="mr-1 h-4 w-4" />
-									{product.location} {product.distance && `(${product.distance})`}
+									{product.location}
 								</div>
 							</div>
 
@@ -128,32 +128,27 @@ export default function ProductPage() {
 
 							<div className="mb-6">
 								<div className="mb-2 flex items-baseline gap-2">
-									<span className="text-3xl font-bold text-gray-900">${product.discountedPrice.toFixed(2)}</span>
-									<span className="text-xl text-gray-500 line-through">${product.originalPrice.toFixed(2)}</span>
-									<span className="rounded-md bg-green-100 px-2 py-1 text-sm font-medium text-green-800">
-										{product.discountPercentage}% OFF
-									</span>
+									{product.discountPercentage ? (
+										<>
+											<span className="text-3xl font-bold text-gray-900">${(product.discountedPrice ?? 0).toFixed(2)}</span>
+											<span className="text-xl text-gray-500 line-through">${product.originalPrice.toFixed(2)}</span>
+											<span className="rounded-md bg-green-100 px-2 py-1 text-sm font-medium text-green-800">
+												{product.discountPercentage}% OFF
+											</span>
+										</>
+									) : (
+										<span className="text-xl text-gray-900">${product.originalPrice.toFixed(2)}</span>
+									)}
 								</div>
 							</div>
 
 							<Separator className="my-6" />
 
-							{product.isPopular && (
-								<div className="mb-6 rounded-md bg-amber-50 p-3">
-									<p className="flex items-center text-sm font-medium text-amber-800">
-										<svg xmlns="http://www.w3.org/2000/svg" className="mr-2 h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-											<path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-										</svg>
-										Popular Deal - Many customers have purchased this deal
-									</p>
-								</div>
-							)}
-
 							<div className="mt-8 flex flex-col gap-4 sm:flex-row">
 								<Button
 									size="lg"
 									className="flex items-center gap-2 bg-green-600 hover:bg-green-700"
-									onClick={() => window.open(product.redirectLink, '_blank')}
+									onClick={() => window.open(product.affiliateLink, '_blank')}
 								>
 									View Deal
 									<ExternalLink className="h-4 w-4" />
@@ -173,42 +168,9 @@ export default function ProductPage() {
 
 				{/* Additional Information */}
 				<div className="mt-12">
-					<div className="rounded-lg border border-gray-200 bg-white p-6">
-						<h2 className="mb-4 text-xl font-medium text-gray-900">Deal Information</h2>
-
-						<div className="grid gap-6 md:grid-cols-2">
-							<div>
-								<h3 className="mb-2 text-lg font-medium text-gray-800">About {product.business}</h3>
-								<p className="text-gray-600">
-									{product.business} offers amazing deals on {product.category.toLowerCase()} services. Located in{' '}
-									{product.location}, they provide exceptional value and quality service.
-								</p>
-							</div>
-
-							<div>
-								<h3 className="mb-2 text-lg font-medium text-gray-800">Deal Highlights</h3>
-								<ul className="list-inside list-disc space-y-1 text-gray-600">
-									<li>Save {product.discountPercentage}% off the regular price</li>
-									{/* <li>
-										Highly rated with {product.rating} stars ({product.reviewCount} reviews)
-									</li> */}
-									<li>
-										Located in {product.location} {product.distance && `(${product.distance})`}
-									</li>
-									{product.isPopular && <li>Popular deal - purchased by many customers</li>}
-								</ul>
-							</div>
-						</div>
-
-						{/* <div className="mt-6">
-							<h3 className="mb-2 text-lg font-medium text-gray-800">Fine Print</h3>
-							<div className="rounded-md bg-gray-50 p-4 text-sm text-gray-700">
-								<p>• Promotional value expires 120 days after purchase.</p>
-								<p>• Not valid with other offers.</p>
-								<p>• Limit 1 per person, may buy 1 additional as gift.</p>
-								<p>• All sales are final.</p>
-							</div>
-						</div> */}
+					<div className="rounded-lg border border-gray-200 p-6">
+						<h3 className="mb-2 text-lg font-medium text-gray-800">About {product.business}</h3>
+						<p className="break-words text-gray-600">{product.description}</p>
 					</div>
 				</div>
 			</div>

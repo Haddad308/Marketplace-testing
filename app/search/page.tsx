@@ -86,24 +86,34 @@ function SearchContent() {
 			}
 
 			// Apply price filter
-			results = results.filter(
-				(product) => product.discountedPrice >= searchFilters.minPrice && product.discountedPrice <= searchFilters.maxPrice
-			);
+			results = results.filter((product) => {
+				const price = product.discountedPrice ?? product.originalPrice;
+				return price >= searchFilters.minPrice && price <= searchFilters.maxPrice;
+			});
 
 			// Apply sorting
 			switch (searchFilters.sortBy) {
 				case 'price-low':
-					results.sort((a, b) => a.discountedPrice - b.discountedPrice);
+					results.sort((a, b) => {
+						const priceA = a.discountedPrice ?? a.originalPrice;
+						const priceB = b.discountedPrice ?? b.originalPrice;
+						return priceA - priceB;
+					});
 					break;
 				case 'price-high':
-					results.sort((a, b) => b.discountedPrice - a.discountedPrice);
+					results.sort((a, b) => {
+						const priceA = a.discountedPrice ?? a.originalPrice;
+						const priceB = b.discountedPrice ?? b.originalPrice;
+						return priceB - priceA;
+					});
 					break;
 				case 'discount':
-					results.sort((a, b) => b.discountPercentage - a.discountPercentage);
+					results.sort((a, b) => (b.discountPercentage ?? 0) - (a.discountPercentage ?? 0));
+					results.forEach((e) => console.log(`Product: ${e.title}, Discount: ${e.discountPercentage}`));
 					break;
-				case 'rating':
-					results.sort((a, b) => b.rating - a.rating);
-					break;
+				// case 'rating':
+				// 	results.sort((a, b) => b.rating - a.rating);
+				// 	break;
 				default:
 					// Keep relevance order (default from search)
 					break;

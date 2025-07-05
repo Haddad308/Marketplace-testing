@@ -1,6 +1,6 @@
 'use client';
 
-import { Calendar, Eye, LucideProps, Package, Plus, Star, TrendingUp, Users } from 'lucide-react';
+import { Calendar, Eye, LucideProps, Package, Plus, TrendingUp, Users } from 'lucide-react';
 import { ForwardRefExoticComponent, RefAttributes, useEffect, useState } from 'react';
 
 import { Button } from '@/components/ui/button';
@@ -15,7 +15,7 @@ import Link from 'next/link';
 interface DashboardStats {
 	totalProducts: number;
 	activeProducts: number;
-	averageRating: number;
+	// averageRating: number;
 	totalViews: number;
 	recentProducts: Product[];
 }
@@ -26,7 +26,7 @@ export default function MerchantDashboard() {
 	const [stats, setStats] = useState<DashboardStats>({
 		totalProducts: 0,
 		activeProducts: 0,
-		averageRating: 0,
+		// averageRating: 0,
 		totalViews: 0,
 		recentProducts: [],
 	});
@@ -49,15 +49,15 @@ export default function MerchantDashboard() {
 			// Calculate stats
 			const totalProducts = products.length;
 			const activeProducts = products.filter((product) => !product.isArchived).length;
-			const averageRating =
-				products.length > 0 ? products.reduce((sum, product) => sum + (product.rating || 0), 0) / products.length : 0;
+			// const averageRating =
+			// 	products.length > 0 ? products.reduce((sum, product) => sum + (product.rating || 0), 0) / products.length : 0;
 			const totalViews = products.reduce((sum, product) => sum + (product.views || 0), 0);
-			const recentProducts = products.slice(0, 5);
+			const recentProducts = products.slice(0, 3);
 
 			setStats({
 				totalProducts,
 				activeProducts,
-				averageRating: Math.round(averageRating * 10) / 10,
+				// averageRating: Math.round(averageRating * 10) / 10,
 				totalViews,
 				recentProducts,
 			});
@@ -133,7 +133,7 @@ export default function MerchantDashboard() {
 			</div>
 
 			{/* Stats Grid */}
-			<div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+			<div className="grid gap-4 md:grid-cols-1 lg:grid-cols-2">
 				<StatCard
 					title="Total Products"
 					value={stats.totalProducts}
@@ -141,20 +141,20 @@ export default function MerchantDashboard() {
 					icon={Package}
 					color="text-blue-400"
 				/>
-				<StatCard
+				{/* <StatCard
 					title="Active Products"
 					value={stats.activeProducts}
 					description="Currently published"
 					icon={TrendingUp}
 					color="text-green-400"
-				/>
-				<StatCard
+				/> */}
+				{/* <StatCard
 					title="Average Rating"
 					value={stats.averageRating || 'N/A'}
 					description="Across all products"
 					icon={Star}
 					color="text-yellow-400"
-				/>
+				/> */}
 				<StatCard
 					title="Total Views"
 					value={stats.totalViews.toLocaleString()}
@@ -203,12 +203,15 @@ export default function MerchantDashboard() {
 										<div className="min-w-0 flex-1">
 											<p className="truncate text-sm font-medium text-white">{product.title}</p>
 											<p className="text-xs text-gray-400">
-												{product.category} • ${product.discountedPrice}
+												{product.category}
+												{!!product.discountedPrice && <> • ${product.discountedPrice}</>}
 											</p>
 										</div>
 										<div className="text-right">
-											<p className="text-sm font-medium text-green-400">-{product.discountPercentage}%</p>
-											<p className="text-xs text-gray-400">{product.rating} ⭐</p>
+											{!!product.discountPercentage && (
+												<p className="text-sm font-medium text-green-400">-{product.discountPercentage}%</p>
+											)}
+											{/* <p className="text-xs text-gray-400">{product.rating} ⭐</p> */}
 										</div>
 									</div>
 								))}

@@ -74,13 +74,13 @@ export default function ManageServicesPage() {
 				filtered.sort((a, b) => a.createdAt.toDate().getTime() - b.createdAt.toDate().getTime());
 				break;
 			case 'price-high':
-				filtered.sort((a, b) => b.discountedPrice - a.discountedPrice);
+				filtered.sort((a, b) => (b.discountedPrice ?? b.originalPrice) - (a.discountedPrice ?? a.originalPrice));
 				break;
 			case 'price-low':
-				filtered.sort((a, b) => a.discountedPrice - b.discountedPrice);
+				filtered.sort((a, b) => (a.discountedPrice ?? a.originalPrice) - (b.discountedPrice ?? b.originalPrice));
 				break;
 			case 'discount':
-				filtered.sort((a, b) => b.discountPercentage - a.discountPercentage);
+				filtered.sort((a, b) => (b.discountPercentage ?? 0) - (a.discountPercentage ?? 0));
 				break;
 			default:
 				break;
