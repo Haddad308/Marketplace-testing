@@ -109,7 +109,6 @@ function SearchContent() {
 					break;
 				case 'discount':
 					results.sort((a, b) => (b.discountPercentage ?? 0) - (a.discountPercentage ?? 0));
-					results.forEach((e) => console.log(`Product: ${e.title}, Discount: ${e.discountPercentage}`));
 					break;
 				// case 'rating':
 				// 	results.sort((a, b) => b.rating - a.rating);

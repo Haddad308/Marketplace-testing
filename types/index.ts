@@ -97,3 +97,9 @@ export interface ViewedProductsState {
 	markAsViewed: (productId: string) => void;
 	hasViewed: (productId: string) => boolean;
 }
+
+
+export interface DateRange {
+	from?: Date;
+	to?: Date;
+}

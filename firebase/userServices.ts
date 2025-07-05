@@ -1,4 +1,5 @@
-import { PaginatedUsers, User, UserData } from '@/types';
+import { USERS_PAGE_SIZE } from '@/lib/constants';
+import { DateRange, PaginatedUsers, User, UserData } from '@/types';
 import { EmailAuthProvider, getAuth, reauthenticateWithCredential, updatePassword, updateProfile } from 'firebase/auth';
 import {
 	arrayRemove,
@@ -13,7 +14,9 @@ import {
 	serverTimestamp,
 	setDoc,
 	startAfter,
+	Timestamp,
 	updateDoc,
+	where,
 } from 'firebase/firestore';
 import { db } from './firabase';
 
@@ -91,33 +94,65 @@ export async function addToWishlist(userId: string, productId: string): Promise<
 	});
 }
 
-export async function getUsers(pageSize = 5, lastDoc?: any, searchQuery?: string): Promise<PaginatedUsers> {
+export async function getUsers(
+	pageSize = USERS_PAGE_SIZE,
+	lastDoc?: any,
+	searchQuery?: string,
+	roleFilter?: string,
+	dateRange?: DateRange
+): Promise<PaginatedUsers> {
 	try {
 		let q = query(collection(db, 'users'), orderBy('createdAt', 'desc'));
 
-		if (searchQuery) {
-			q = query(collection(db, 'users'));
-		} else if (lastDoc) {
-			q = query(collection(db, 'users'), orderBy('createdAt', 'desc'), startAfter(lastDoc), limit(pageSize + 1));
+		// Apply role filter
+		if (roleFilter && roleFilter !== 'all') {
+			q = query(collection(db, 'users'), where('role', '==', roleFilter), orderBy('createdAt', 'desc'));
+		}
+
+		// Apply date range filter
+		if (dateRange?.from) {
+			const startDate = Timestamp.fromDate(new Date(dateRange.from.setHours(0, 0, 0, 0)));
+			const endDate = dateRange.to
+				? Timestamp.fromDate(new Date(dateRange.to.setHours(23, 59, 59, 999)))
+				: Timestamp.fromDate(new Date(dateRange.from.setHours(23, 59, 59, 999)));
+
+			if (roleFilter && roleFilter !== 'all') {
+				q = query(
+					collection(db, 'users'),
+					where('role', '==', roleFilter),
+					where('createdAt', '>=', startDate),
+					where('createdAt', '<=', endDate),
+					orderBy('createdAt', 'desc')
+				);
+			} else {
+				q = query(
+					collection(db, 'users'),
+					where('createdAt', '>=', startDate),
+					where('createdAt', '<=', endDate),
+					orderBy('createdAt', 'desc')
+				);
+			}
+		}
+
+		// Apply pagination
+		if (lastDoc) {
+			q = query(q, startAfter(lastDoc), limit(pageSize + 1));
 		} else {
-			q = query(collection(db, 'users'), orderBy('createdAt', 'desc'), limit(pageSize + 1));
+			q = query(q, limit(pageSize + 1));
 		}
 
 		const snapshot = await getDocs(q);
 		let users = snapshot.docs.map((doc) => ({
 			id: doc.id,
-			...(doc.data() as Omit<User, 'id'>),
-		}));
+			...doc.data(),
+		})) as User[];
 
-		// Client-side search filtering
+		// Client-side search filtering if search query is provided
 		if (searchQuery) {
 			const searchLower = searchQuery.toLowerCase();
 			users = users.filter(
 				(user) => user.displayName?.toLowerCase().includes(searchLower) || user.email?.toLowerCase().includes(searchLower)
 			);
-			// Apply pagination to search results
-			const startIndex = lastDoc ? users.findIndex((u) => u.id === lastDoc.id) + 1 : 0;
-			users = users.slice(startIndex, startIndex + pageSize + 1);
 		}
 
 		const hasMore = users.length > pageSize;
