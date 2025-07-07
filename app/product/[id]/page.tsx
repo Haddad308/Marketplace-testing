@@ -8,13 +8,14 @@ import { useEffect, useState } from 'react';
 import WishlistLoginModal from '@/components/modals/WishlistLoginModal';
 import ProductDetailsSkeleton from '@/components/skeletons/ProductDetailsSkeleton';
 import { Button } from '@/components/ui/button';
+import { ProductMap } from '@/components/ui/product-map';
 import { Separator } from '@/components/ui/separator';
 import { useAuth } from '@/contexts/auth-context';
 import { getProductById, incrementProductView } from '@/firebase/productServices';
 import { toast } from '@/hooks/use-toast';
 import { useToggleFavorites } from '@/hooks/use-toggle-favorites';
 import { useViewedProductsStore } from '@/stores/viewedProductsStore';
-import { Product } from '@/types';
+import type { Product } from '@/types';
 import { useParams } from 'next/navigation';
 
 export default function ProductPage() {
@@ -113,19 +114,6 @@ export default function ProductPage() {
 								<span>{product.business}</span>
 							</div>
 
-							{/* <div className="mb-4 flex items-center gap-2">
-								<div className="flex items-center">
-									{[...Array(5)].map((_, i) => (
-										<Star
-											key={i}
-											className={`h-4 w-4 ${i < Math.floor(product.rating) ? 'fill-yellow-400 text-yellow-400' : 'text-gray-300'}`}
-										/>
-									))}
-								</div>
-								<span className="text-sm font-medium text-gray-700">{product.rating}</span>
-								<span className="text-sm text-gray-500">({product.reviewCount} reviews)</span>
-							</div> */}
-
 							<div className="mb-6">
 								<div className="mb-2 flex items-baseline gap-2">
 									{product.discountPercentage ? (
@@ -156,7 +144,7 @@ export default function ProductPage() {
 								<Button
 									variant="outline"
 									size="lg"
-									className="flex items-center gap-2 border-purple-600 text-purple-600 hover:bg-purple-50"
+									className="flex items-center gap-2 border-purple-600 bg-transparent text-purple-600 hover:bg-purple-50"
 									onClick={() => toggleFavorite(product.id)}
 								>
 									{favorites.includes(product.id) ? 'Remove from wishlist' : 'Add to Wishlist'}
@@ -171,6 +159,16 @@ export default function ProductPage() {
 					<div className="rounded-lg border border-gray-200 p-6">
 						<h3 className="mb-2 text-lg font-medium text-gray-800">About {product.business}</h3>
 						<p className="break-words text-gray-600">{product.description}</p>
+					</div>
+				</div>
+
+				{/* Product Location Map */}
+				<div className="mt-8">
+					<div className="overflow-hidden rounded-lg border border-gray-200">
+						<div className="border-b border-gray-200 bg-gray-50 p-4">
+							<h3 className="text-lg font-medium text-gray-800">Location</h3>
+						</div>
+						<ProductMap location={product.location} className="h-80" />
 					</div>
 				</div>
 			</div>
