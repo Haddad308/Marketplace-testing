@@ -281,7 +281,7 @@ function SearchContent() {
 							<SelectItem value="price-low">Price: Low to High</SelectItem>
 							<SelectItem value="price-high">Price: High to Low</SelectItem>
 							<SelectItem value="discount">Highest Discount</SelectItem>
-							<SelectItem value="rating">Highest Rated</SelectItem>
+							{/* <SelectItem value="rating">Highest Rated</SelectItem> */}
 						</SelectContent>
 					</Select>
 				</div>
