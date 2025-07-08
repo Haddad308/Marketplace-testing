@@ -58,17 +58,22 @@ export default function ProductsSection() {
 
 	return (
 		<section className="mx-auto max-w-7xl py-8">
-			{/* Products Grid */}
-			<div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-				{products?.map((product) => (
-					<ProductCard
-						key={product.id}
-						product={product}
-						isFavorite={favorites.includes(product.id)}
-						onToggleFavorite={() => toggleFavorite(product.id)}
-					/>
-				))}
-			</div>
+			<h2 className="mb-6 text-2xl font-bold">Products</h2>
+
+			{!products || products.length === 0 ? (
+				<p className="text-gray-500">No products found.</p>
+			) : (
+				<div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+					{products?.map((product) => (
+						<ProductCard
+							key={product.id}
+							product={product}
+							isFavorite={favorites.includes(product.id)}
+							onToggleFavorite={() => toggleFavorite(product.id)}
+						/>
+					))}
+				</div>
+			)}
 
 			{/* Load More Button */}
 			{hasMore && (

@@ -88,7 +88,7 @@ export default function ManageAdsPage() {
 			<div className="flex items-center justify-between">
 				<div>
 					<h1 className="text-2xl font-bold text-gray-100">Manage Ads</h1>
-					<p className="text-gray-400">Manage promotional banners (2 spots available)</p>
+					<p className="text-gray-400">Manage promotional banners</p>
 				</div>
 
 				<Dialog
@@ -106,7 +106,7 @@ export default function ManageAdsPage() {
 							className="bg-blue-600 text-white hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
 						>
 							<Plus className="h-4 w-4" />
-							Add Ad
+							Create Ad
 						</Button>
 					</DialogTrigger>
 
@@ -166,15 +166,20 @@ export default function ManageAdsPage() {
 									</div>
 								</div>
 							</CardHeader>
-							<CardContent>
-								<div className="space-y-4">
-									{ad.image && (
-										<div className="relative h-32 w-full overflow-hidden rounded-lg">
-											<Image src={ad.image || '/placeholder.svg'} alt={ad.title} fill className="object-cover" />
-										</div>
-									)}
+							<CardContent className="h-full">
+								<div className="flex h-full flex-col justify-between space-y-4">
+									<div>
+										{ad.image && (
+											<div className="relative h-32 w-full overflow-hidden rounded-lg">
+												<Image src={ad.image || '/placeholder.svg'} alt={ad.title} fill className="object-cover" />
+											</div>
+										)}
 
-									<div className="text-sm text-gray-300" dangerouslySetInnerHTML={{ __html: ad.description }} />
+										<div
+											className="mt-8 line-clamp-6 text-sm text-gray-300"
+											dangerouslySetInnerHTML={{ __html: ad.description }}
+										/>
+									</div>
 
 									<div className="text-xs text-gray-500">
 										Position: {ad.position} | Status: {ad.isActive ? 'Active' : 'Inactive'}

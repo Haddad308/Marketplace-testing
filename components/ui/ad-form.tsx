@@ -43,7 +43,7 @@ const AdForm = ({ setDialogOpen, fetchAds, editingAd, setEditingAd }: props) => 
 				const val = typeof value === 'string' ? value : '';
 				if (!val.trim()) return 'Product description is required';
 				if (val.trim().length < 10) return 'Description must be at least 10 characters';
-				if (val.trim().length > 1000) return 'Description must be less than 1000 characters';
+				if (val.trim().length > 150) return 'Description must be less than 150 characters';
 				break;
 			}
 			case 'image': {
@@ -263,7 +263,7 @@ const AdForm = ({ setDialogOpen, fetchAds, editingAd, setEditingAd }: props) => 
 					/>
 				</div>
 				<div className="flex justify-between text-xs text-gray-400">
-					<span>{formData.description.length}/1000 characters</span>
+					<span>{formData.description.length}/150 characters</span>
 				</div>
 				{errors.description && touched.description && <span className="text-sm text-red-400">{errors.description}</span>}
 			</div>

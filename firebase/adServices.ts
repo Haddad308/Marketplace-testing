@@ -5,6 +5,7 @@ import {
 	deleteDoc,
 	doc,
 	getDocs,
+	limit,
 	orderBy,
 	query,
 	serverTimestamp,
@@ -31,9 +32,9 @@ export const adService = {
 	},
 
 	// Get active ads only
-	async getActiveAds(): Promise<Ad[]> {
+	async getActiveAds(adNumber: number): Promise<Ad[]> {
 		try {
-			const q = query(collection(db, 'ads'), where('isActive', '==', true), orderBy('position', 'asc'));
+			const q = query(collection(db, 'ads'), where('isActive', '==', true), limit(adNumber));
 			const snapshot = await getDocs(q);
 			return snapshot.docs.map((doc) => ({
 				id: doc.id,
