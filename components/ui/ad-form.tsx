@@ -194,7 +194,11 @@ const AdForm = ({ setDialogOpen, fetchAds, editingAd, setEditingAd }: props) => 
 			resetForm();
 			setDialogOpen(false);
 		} catch (error) {
-			setSubmitError(editingAd ? 'Failed to update ad' : 'Failed to create ad');
+			setSubmitError(
+				editingAd
+					? `Failed to update ad: ${error instanceof Error ? error.message : 'Unknown error'}`
+					: `Failed to create ad: ${error instanceof Error ? error.message : 'Unknown error'}`
+			);
 		} finally {
 			setSubmitting(false);
 		}

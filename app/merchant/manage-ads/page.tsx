@@ -50,7 +50,7 @@ export default function ManageAdsPage() {
 			const adsData = await adService.getAds();
 			setAds(adsData);
 		} catch (error) {
-			toast.error('Failed to fetch ads');
+			toast.error(`Failed to fetch ads: ${error instanceof Error ? error.message : 'Unknown error'}`);
 		} finally {
 			setLoading(false);
 		}
@@ -62,7 +62,7 @@ export default function ManageAdsPage() {
 			toast.success('Ad deleted successfully');
 			await fetchAds();
 		} catch (error) {
-			toast.error('Failed to delete ad');
+			toast.error(`Failed to delete ad: ${error instanceof Error ? error.message : 'Unknown error'}`);
 		}
 	};
 
