@@ -98,8 +98,43 @@ export interface ViewedProductsState {
 	hasViewed: (productId: string) => boolean;
 }
 
-
 export interface DateRange {
 	from?: Date;
 	to?: Date;
+}
+
+export interface Ad {
+	id: string;
+	title: string;
+	description: string;
+	image: string;
+	affiliateLink: string;
+	position: 1 | 2;
+	isActive: boolean;
+	createdAt: any;
+	updatedAt: any;
+}
+
+export interface AdFormData {
+	title: string;
+	description: string;
+	image: File | string | null;
+	affiliateLink: string;
+	position: 1 | 2;
+	isActive: boolean;
+}
+
+export interface AdFormErrors {
+	title?: string;
+	image?: string;
+	description?: string;
+	affiliateLink?: string;
+	submit?: string;
+}
+
+export interface AdTouchedFields {
+	title: boolean;
+	image: boolean;
+	description: boolean;
+	affiliateLink: boolean;
 }

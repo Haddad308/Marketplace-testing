@@ -12,8 +12,6 @@ export function ProductMap({ location, className }: ProductMapProps) {
 	const mapRef = useRef<HTMLDivElement>(null);
 	const mapInstanceRef = useRef<L.Map | null>(null);
 
-	console.log(mapInstanceRef);
-
 	useEffect(() => {
 		if (!mapRef.current || !location) return;
 

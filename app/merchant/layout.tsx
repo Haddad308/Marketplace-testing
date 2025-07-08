@@ -2,7 +2,7 @@
 
 import type React from 'react';
 
-import { LayoutDashboard, LogOut, Menu, Package, Plus, Store, Users, X } from 'lucide-react';
+import { LayoutDashboard, LogOut, Megaphone, Menu, Package, Plus, Store, Users, X } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
@@ -27,6 +27,7 @@ export default function MerchantLayout({ children }: { children: React.ReactNode
 			: []),
 		{ name: 'Manage Products', href: '/merchant/manage-products', icon: Package },
 		...(user?.role === 'admin' ? [{ name: 'Manage Users', href: '/merchant/manage-users', icon: Users }] : []),
+		...(user?.role === 'admin' ? [{ name: 'Manage Ads', href: '/merchant/manage-ads', icon: Megaphone }] : []),
 	];
 
 	useEffect(() => {
