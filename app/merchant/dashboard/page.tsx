@@ -201,7 +201,9 @@ export default function MerchantDashboard() {
 											/>
 										</div>
 										<div className="min-w-0 flex-1">
-											<p className="truncate text-sm font-medium text-white">{product.title}</p>
+											<p className="line-clamp-1 truncate text-sm font-medium whitespace-normal text-white" title={product.title}>
+												{product.title}
+											</p>
 											<p className="text-xs text-gray-400">
 												{product.category}
 												{!!product.discountedPrice && <> • ${product.discountedPrice}</>}
