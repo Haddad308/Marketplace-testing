@@ -1,4 +1,5 @@
-import { PAGE_SIZE } from '@/lib/constants';
+import { PAGE_SIZE, SEARCH_PRODUCTS_PAGE_SIZE } from '@/lib/constants';
+import { getFilteredProductsByLocation, sortProductsBasedOnLocation } from '@/lib/helpers';
 import { Product } from '@/types';
 import {
 	collection,
@@ -13,6 +14,7 @@ import {
 	QueryDocumentSnapshot,
 	startAfter,
 	updateDoc,
+	where,
 } from 'firebase/firestore';
 import { db } from './firabase';
 
@@ -25,7 +27,10 @@ export async function getProducts() {
 	}
 }
 
-export async function getPaginatedProducts(pageSize = PAGE_SIZE, startAfterDoc?: QueryDocumentSnapshot<DocumentData>) {
+export async function getPaginatedProducts(
+	pageSize = PAGE_SIZE,
+	startAfterDoc: QueryDocumentSnapshot<DocumentData> | null = null
+) {
 	try {
 		let q;
 
@@ -59,6 +64,90 @@ export async function getPaginatedProducts(pageSize = PAGE_SIZE, startAfterDoc?:
 		};
 	} catch (error) {
 		throw new Error(`Error fetching products: ${error}`);
+	}
+}
+
+export async function getPaginatedProductsBasedOnLocation({
+	pageSize,
+	location,
+	locationStartAfter,
+	fallbackStartAfter,
+	hasMoreLocation,
+	hasMoreFallback = false,
+}: {
+	pageSize: number;
+	location: string;
+	locationStartAfter: QueryDocumentSnapshot<DocumentData> | null;
+	fallbackStartAfter: QueryDocumentSnapshot<DocumentData> | null;
+	hasMoreLocation: boolean;
+	hasMoreFallback?: boolean;
+}) {
+	try {
+		let finalDocs: QueryDocumentSnapshot<DocumentData>[] = [];
+
+		// 1. Try to get location-matched products if we still have any
+		if (hasMoreLocation) {
+			const locationQuery = query(
+				collection(db, 'products'),
+				where('location', '==', location),
+				orderBy('createdAt', 'desc'),
+				...(locationStartAfter ? [startAfter(locationStartAfter)] : []),
+				limit(pageSize + 1)
+			);
+
+			const locationSnap = await getDocs(locationQuery);
+			const locationDocs = locationSnap.docs;
+
+			hasMoreLocation = locationDocs.length >= pageSize + 1;
+			finalDocs = locationDocs.slice(0, pageSize);
+			locationStartAfter = finalDocs.length > 0 ? finalDocs[finalDocs.length - 1] : null;
+
+			if (finalDocs.length === pageSize) {
+				return {
+					products: finalDocs.map((doc) => ({
+						id: doc.id,
+						...(doc.data() as Omit<Product, 'id'>),
+					})),
+					locationLastVisible: locationStartAfter,
+					fallbackLastVisible: fallbackStartAfter,
+					hasMoreLocation,
+					hasMoreFallback,
+				};
+			}
+		}
+
+		// 2. Fallback to non-location products
+		const fallbackLimit = pageSize - finalDocs.length;
+		const nonLocationQuery = query(
+			collection(db, 'products'),
+			orderBy('createdAt', 'desc'),
+			...(fallbackStartAfter ? [startAfter(fallbackStartAfter)] : []),
+			limit(fallbackLimit + 10 * pageSize) // Fetch more than needed to ensure we have enough fallback products
+		);
+
+		const nonLocationSnap = await getDocs(nonLocationQuery);
+
+		const filtered = nonLocationSnap.docs.filter((doc) => doc.data().location !== location);
+
+		hasMoreFallback = filtered.length >= fallbackLimit + 1;
+
+		const fallbackDocs = filtered.slice(0, fallbackLimit);
+		fallbackStartAfter = fallbackDocs.length > 0 ? fallbackDocs[fallbackDocs.length - 1] : fallbackStartAfter;
+
+		finalDocs = [...finalDocs, ...fallbackDocs];
+
+		return {
+			products: finalDocs.map((doc) => ({
+				id: doc.id,
+				...(doc.data() as Omit<Product, 'id'>),
+			})),
+			locationLastVisible: locationStartAfter,
+			fallbackLastVisible: fallbackStartAfter,
+			hasMoreLocation,
+			hasMoreFallback,
+		};
+	} catch (error) {
+		throw new Error(`Error fetching location-based products: ${error}`);
 	}
 }
 
@@ -98,36 +187,39 @@ export async function getProductById(id: string) {
 	}
 }
 
-export async function getPopularProducts(limit: number = 3) {
+export async function getPopularProducts(limit: number = 3, location: string | null) {
 	try {
 		const productsRef = collection(db, 'products');
 		const snapshot = await getDocs(productsRef);
 		const products = snapshot.docs
 			.map((doc) => ({ id: doc.id, ...(doc.data() as Omit<Product, 'id'>) }))
-			.sort((a, b) => (b.views ?? 0) - (a.views ?? 0))
-			.slice(0, limit);
-		return products;
+			.sort((a, b) => (b.views ?? 0) - (a.views ?? 0));
+
+		// Filter products based on location
+		const filteredProducts = getFilteredProductsByLocation(products, location).slice(0, limit);
+		return filteredProducts;
 	} catch (error) {
 		throw new Error(`Error fetching popular products: ${error}`);
 	}
 }
 
-export async function searchProducts(query: string, limit = 9) {
+export async function searchProducts(query: string, limit = SEARCH_PRODUCTS_PAGE_SIZE, location: string | null = null) {
 	try {
-		if (!query.trim()) {
-			return getPopularProducts(limit);
-		}
-
 		const productsRef = collection(db, 'products');
 		const snapshot = await getDocs(productsRef);
 		const lowerQuery = query.toLowerCase();
-		const products = snapshot.docs
-			.map((doc) => ({ id: doc.id, ...(doc.data() as Omit<Product, 'id'>) }))
-			.filter(
-				(product) =>
-					product.title?.toLowerCase().includes(lowerQuery) || product.business?.toLowerCase().includes(lowerQuery)
-			);
-		return products;
+		const products = lowerQuery
+			? snapshot.docs
+					.map((doc) => ({ id: doc.id, ...(doc.data() as Omit<Product, 'id'>) }))
+					.filter(
+						(product) =>
+							product.title?.toLowerCase().includes(lowerQuery) || product.business?.toLowerCase().includes(lowerQuery)
+					)
+			: snapshot.docs.map((doc) => ({ id: doc.id, ...(doc.data() as Omit<Product, 'id'>) }));
+
+		const sortedProducts = sortProductsBasedOnLocation(products, location);
+
+		return sortedProducts.slice(0, limit);
 	} catch (error) {
 		throw new Error(`Error searching products: ${error}`);
 	}

@@ -15,6 +15,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { searchProducts } from '@/firebase/productServices';
 import { toast } from '@/hooks/use-toast';
 import { useToggleFavorites } from '@/hooks/use-toggle-favorites';
+import { SEARCH_PRODUCTS_PAGE_SIZE } from '@/lib/constants';
+import { useLocationStore } from '@/stores/locationStore';
 import type { Product } from '@/types';
 
 interface SearchFilters {
@@ -27,6 +29,8 @@ interface SearchFilters {
 
 function SearchContent() {
 	const { favorites, toggleFavorite, wishlistLoginModalOpen, setWishlistLoginModalOpen } = useToggleFavorites();
+
+	const { location } = useLocationStore();
 
 	const router = useRouter();
 	const searchParams = useSearchParams();
@@ -73,60 +77,67 @@ function SearchContent() {
 	}, []);
 
 	// Perform search with all filters
-	const performSearch = useCallback(async (searchFilters: SearchFilters) => {
-		try {
-			setIsLoading(true);
+	const performSearch = useCallback(
+		async (searchFilters: SearchFilters) => {
+			try {
+				setIsLoading(true);
 
-			// Get all products matching the search query
-			let results = await searchProducts(searchFilters.query);
+				// Get all products matching the search query
+				let results = await searchProducts(searchFilters.query, SEARCH_PRODUCTS_PAGE_SIZE, location);
 
-			// Apply category filter
-			if (searchFilters.category !== 'all') {
-				results = results.filter((product) => product.category.toLowerCase() === searchFilters.category.toLowerCase());
+				// Apply category filter
+				if (searchFilters.category !== 'all') {
+					results = results.filter((product) => product.category.toLowerCase() === searchFilters.category.toLowerCase());
+				}
+
+				// Apply price filter
+				results = results.filter((product) => {
+					const price = product.discountedPrice ?? product.originalPrice;
+					return price >= searchFilters.minPrice && price <= searchFilters.maxPrice;
+				});
+
+				// Apply sorting
+				switch (searchFilters.sortBy) {
+					case 'price-low':
+						results.sort((a, b) => {
+							const priceA = a.discountedPrice ?? a.originalPrice;
+							const priceB = b.discountedPrice ?? b.originalPrice;
+							return priceA - priceB;
+						});
+						break;
+					case 'price-high':
+						results.sort((a, b) => {
+							const priceA = a.discountedPrice ?? a.originalPrice;
+							const priceB = b.discountedPrice ?? b.originalPrice;
+							return priceB - priceA;
+						});
+						break;
+					case 'discount':
+						results.sort((a, b) => (b.discountPercentage ?? 0) - (a.discountPercentage ?? 0));
+						break;
+					// case 'rating':
+					// 	results.sort((a, b) => b.rating - a.rating);
+					// 	break;
+					default:
+						// Keep relevance order (default from search)
+						break;
+				}
+
+				setProducts(results);
+			} catch (error) {
+				console.error('Error searching products:', error);
+				toast.error('Error', `Error searching products: ${error}`);
+				setProducts([]);
+			} finally {
+				setIsLoading(false);
 			}
+		},
+		[location]
+	);
 
-			// Apply price filter
-			results = results.filter((product) => {
-				const price = product.discountedPrice ?? product.originalPrice;
-				return price >= searchFilters.minPrice && price <= searchFilters.maxPrice;
-			});
-
-			// Apply sorting
-			switch (searchFilters.sortBy) {
-				case 'price-low':
-					results.sort((a, b) => {
-						const priceA = a.discountedPrice ?? a.originalPrice;
-						const priceB = b.discountedPrice ?? b.originalPrice;
-						return priceA - priceB;
-					});
-					break;
-				case 'price-high':
-					results.sort((a, b) => {
-						const priceA = a.discountedPrice ?? a.originalPrice;
-						const priceB = b.discountedPrice ?? b.originalPrice;
-						return priceB - priceA;
-					});
-					break;
-				case 'discount':
-					results.sort((a, b) => (b.discountPercentage ?? 0) - (a.discountPercentage ?? 0));
-					break;
-				// case 'rating':
-				// 	results.sort((a, b) => b.rating - a.rating);
-				// 	break;
-				default:
-					// Keep relevance order (default from search)
-					break;
-			}
-
-			setProducts(results);
-		} catch (error) {
-			console.error('Error searching products:', error);
-			toast.error('Error', `Error searching products: ${error}`);
-			setProducts([]);
-		} finally {
-			setIsLoading(false);
-		}
-	}, []);
+	useEffect(() => {
+		performSearch(filters);
+	}, [location]);
 
 	// Handle filter changes
 	const handleFilterChange = useCallback(
@@ -166,7 +177,7 @@ function SearchContent() {
 	// Initial search on component mount
 	useEffect(() => {
 		performSearch(filters);
-	}, []); // Only run once on mount
+	}, []);
 
 	// Update temp price values when filters change from URL
 	useEffect(() => {
@@ -181,7 +192,7 @@ function SearchContent() {
 			{/* Results Info */}
 			{!isLoading && (
 				<div className="mb-8 flex items-center gap-2">
-					<ArrowLeft className="cursor-pointer" onClick={() => router.push('/')} />
+					<ArrowLeft className="cursor-pointer" onClick={() => router.back()} />
 					<p className="text-gray-600">
 						{products.length > 0
 							? `Found ${products.length} deal${products.length !== 1 ? 's' : ''} ${

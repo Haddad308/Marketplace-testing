@@ -1,19 +1,15 @@
-import { ViewedProductsState } from '@/types';
+import { LocationState } from '@/types';
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
-export const useViewedProductsStore = create(
-	persist<ViewedProductsState>(
-		(set, get) => ({
-			viewedProductIds: [],
-			markAsViewed: (productId) =>
-				set((state) => ({
-					viewedProductIds: [...state.viewedProductIds, productId],
-				})),
-			hasViewed: (productId) => get().viewedProductIds.includes(productId),
+export const useLocationStore = create(
+	persist<LocationState>(
+		(set) => ({
+			location: '',
+			setLocation: (location: string) => set({ location }),
 		}),
 		{
-			name: 'viewed-products',
+			name: 'location-store',
 			storage: {
 				getItem: (name) => {
 					if (typeof window === 'undefined') return null;

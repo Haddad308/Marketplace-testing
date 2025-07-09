@@ -6,12 +6,16 @@ import { Button } from '@/components/ui/button';
 import { getProducts } from '@/firebase/productServices';
 import { toast } from '@/hooks/use-toast';
 import { useToggleFavorites } from '@/hooks/use-toggle-favorites';
+import { getFilteredProductsByLocation } from '@/lib/helpers';
+import { useLocationStore } from '@/stores/locationStore';
 import type { Product } from '@/types';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
 export default function TrendingSection() {
 	const { favorites, toggleFavorite, wishlistLoginModalOpen, setWishlistLoginModalOpen } = useToggleFavorites();
+
+	const { location } = useLocationStore();
 
 	const [products, setProducts] = useState<Product[]>([]);
 	const [loading, setLoading] = useState(true);
@@ -40,8 +44,11 @@ export default function TrendingSection() {
 		const fetchTrendingProducts = async () => {
 			try {
 				const allProducts = await getProducts();
+
+				const filteredProducts = getFilteredProductsByLocation(allProducts, location, 3).slice(0, 3);
+
 				// Get the top 3 most viewed products
-				const trendingProducts = allProducts.sort((a, b) => (b.views ?? 0) - (a.views ?? 0)).slice(0, 3);
+				const trendingProducts = filteredProducts.sort((a, b) => (b.views ?? 0) - (a.views ?? 0));
 				setProducts(trendingProducts);
 			} catch (error) {
 				console.error('Error fetching trending products:', error);
@@ -51,7 +58,7 @@ export default function TrendingSection() {
 		};
 
 		fetchTrendingProducts();
-	}, [showAll]);
+	}, [showAll, location]);
 
 	if (loading) {
 		return (

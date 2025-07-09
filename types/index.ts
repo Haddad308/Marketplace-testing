@@ -138,3 +138,16 @@ export interface AdTouchedFields {
 	description: boolean;
 	affiliateLink: boolean;
 }
+
+export interface LocationData {
+	city: string;
+	state: string;
+	zipCodes: string[];
+	neighborhoods: string[];
+	displayName: string;
+}
+
+export interface LocationState {
+	location: string;
+	setLocation: (location: string) => void;
+}
