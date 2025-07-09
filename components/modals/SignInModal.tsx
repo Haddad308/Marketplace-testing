@@ -49,6 +49,8 @@ export function SignInModal() {
 	const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
 		const { name, value } = e.target;
 
+		setError((prev) => ({ ...prev, response: '' }));
+
 		// Always update the form data first
 
 		setFormData((prev) => ({ ...prev, [name]: value }));
@@ -165,7 +167,13 @@ export function SignInModal() {
 	};
 
 	return (
-		<DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
+		<DropdownMenu
+			open={isOpen}
+			onOpenChange={(open) => {
+				setIsOpen(open);
+				resetForm();
+			}}
+		>
 			<DropdownMenuTrigger asChild>
 				<Button
 					variant="outline"
@@ -203,6 +211,13 @@ export function SignInModal() {
 								className="w-full rounded-md border-gray-300 py-3"
 								onBlur={() => handleTouched('email')}
 								onInput={() => handleTouched('email')}
+								onKeyDown={(e) => {
+									if (e.key === 'Enter') {
+										if (formData.email && !error?.email) {
+											handleEmailContinue();
+										}
+									}
+								}}
 							/>
 							{renderError('email')}
 
@@ -240,6 +255,13 @@ export function SignInModal() {
 									onChange={handleInputChange}
 									className="w-full rounded-md border-gray-300 py-3 pr-10"
 									onBlur={() => handleTouched('password')}
+									onKeyDown={(e) => {
+										if (e.key === 'Enter') {
+											if (formData.password && !error?.password) {
+												handleSignIn();
+											}
+										}
+									}}
 								/>
 								<Button
 									type="button"
@@ -255,7 +277,7 @@ export function SignInModal() {
 
 							<Button
 								onClick={handleSignIn}
-								disabled={!formData.password || isLoading}
+								disabled={!formData.password || !!error?.password || isLoading}
 								className="mt-4 w-full rounded-full bg-purple-600 py-3 font-medium text-white hover:bg-purple-700"
 							>
 								{isLoading ? 'Signing In...' : 'Sign In'}
