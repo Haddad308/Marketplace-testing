@@ -10,7 +10,7 @@ import { LoadingButton } from '@/components/ui/loading-button';
 import { UserDropdown } from '@/components/UserDropdown';
 import WishlistBadge from '@/components/WishlistBadge';
 import { useAuth } from '@/contexts/auth-context';
-import { categories } from '@/lib/constants';
+import { CATEGORIES } from '@/lib/constants';
 
 export default function Navbar() {
 	const { user, loading } = useAuth();
@@ -56,7 +56,7 @@ export default function Navbar() {
 				<div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
 					<div className="flex h-12 items-center justify-between overflow-x-auto">
 						<nav className="flex w-full justify-between gap-x-8">
-							{categories.map((category) => (
+							{CATEGORIES.map((category) => (
 								<Link
 									key={category.name}
 									href={`/categories/${category.name.toLowerCase().replace(/\s+/g, '-').replace(/&/g, 'and')}`}

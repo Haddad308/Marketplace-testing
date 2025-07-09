@@ -14,20 +14,11 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { useAuth } from '@/contexts/auth-context';
 import { createProduct, updateProduct } from '@/firebase/merchantServices';
 import { toast } from '@/hooks/use-toast';
+import { CATEGORIES } from '@/lib/constants';
 import type { FormErrors, Product, ProductFormData, TouchedFields } from '@/types';
 import { Textarea } from './ui/textarea';
 
-const categories = [
-	'Beauty & Spas',
-	'Things To Do',
-	'Auto & Home',
-	'Food & Drink',
-	'Gifts',
-	'Local',
-	'Travel',
-	'Goods',
-	'Coupons',
-];
+const categories = CATEGORIES.map((cat) => cat.name);
 
 interface ProductFormProps {
 	mode: 'create' | 'edit';

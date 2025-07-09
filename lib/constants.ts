@@ -67,7 +67,7 @@ export const categoryMetadata: Record<string, CategoryInfo> = {
 	},
 };
 
-export const categories = [
+export const CATEGORIES = [
 	{ name: 'Beauty & Spas', icon: '💄' },
 	{ name: 'Things To Do', icon: '🎯' },
 	{ name: 'Auto & Home', icon: '🏠' },

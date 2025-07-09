@@ -15,7 +15,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { searchProducts } from '@/firebase/productServices';
 import { toast } from '@/hooks/use-toast';
 import { useToggleFavorites } from '@/hooks/use-toggle-favorites';
-import { SEARCH_PRODUCTS_PAGE_SIZE } from '@/lib/constants';
+import { CATEGORIES, SEARCH_PRODUCTS_PAGE_SIZE } from '@/lib/constants';
 import { useLocationStore } from '@/stores/locationStore';
 import type { Product } from '@/types';
 
@@ -49,18 +49,7 @@ function SearchContent() {
 	const [tempMinPrice, setTempMinPrice] = useState(filters.minPrice.toString());
 	const [tempMaxPrice, setTempMaxPrice] = useState(filters.maxPrice.toString());
 
-	const categories = [
-		'all',
-		'Beauty & Spas',
-		'Things To Do',
-		'Auto & Home',
-		'Food & Drink',
-		'Gifts',
-		'Local',
-		'Travel',
-		'Goods',
-		'Coupons',
-	];
+	const categories = ['all', ...CATEGORIES.map((cat) => cat.name)];
 
 	// Update URL when filters change
 	const updateURL = useCallback((newFilters: SearchFilters) => {
