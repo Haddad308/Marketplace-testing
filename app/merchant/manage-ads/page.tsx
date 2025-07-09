@@ -176,7 +176,7 @@ export default function ManageAdsPage() {
 										)}
 
 										<div
-											className="mt-8 line-clamp-6 text-sm text-gray-300"
+											className="mt-8 line-clamp-6 text-sm break-all text-gray-300"
 											dangerouslySetInnerHTML={{ __html: ad.description }}
 										/>
 									</div>

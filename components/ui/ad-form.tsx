@@ -25,7 +25,7 @@ const AdForm = ({ setDialogOpen, fetchAds, editingAd, setEditingAd }: props) => 
 		image: editingAd?.image || null,
 		affiliateLink: editingAd?.affiliateLink || '',
 		position: editingAd?.position || 1,
-		isActive: editingAd?.isActive || true,
+		isActive: editingAd?.isActive ?? true,
 	});
 
 	// Validation functions
