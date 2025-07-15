@@ -180,7 +180,11 @@ export async function updateUserRole(
 ): Promise<void> {
 	try {
 		const userRef = doc(db, 'users', userId);
-		const updateData: any = {
+		const updateData: {
+			role: 'user' | 'merchant' | 'admin';
+			updatedAt: ReturnType<typeof serverTimestamp>;
+			permissions?: string[];
+		} = {
 			role,
 			updatedAt: serverTimestamp(),
 		};

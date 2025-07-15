@@ -6,13 +6,13 @@ import { getStorage } from 'firebase/storage';
 
 // For Firebase JS SDK v7.20.0 and later, measurementId is optional
 const firebaseConfig = {
-	apiKey: 'AIzaSyDpJBet_2q7nGVQBEkBWY-UiM2XDe7A-eA',
-	authDomain: 'merch-64e5f.firebaseapp.com',
-	projectId: 'merch-64e5f',
-	storageBucket: 'merch-64e5f.firebasestorage.app',
-	messagingSenderId: '915108516992',
-	appId: '1:915108516992:web:90068b7f5a74e19e264265',
-	measurementId: 'G-Z71MLRZWER',
+  apiKey: "AIzaSyDY3cdP6a7N5ubvaXOut7hk9P-jsxpBozY",
+  authDomain: "marketplace-testing-fd475.firebaseapp.com",
+  projectId: "marketplace-testing-fd475",
+  storageBucket: "marketplace-testing-fd475.firebasestorage.app",
+  messagingSenderId: "932564087745",
+  appId: "1:932564087745:web:af74985e985d6dcc573540",
+  measurementId: "G-VMMKWJM0HF"
 };
 
 // Initialize Firebase
