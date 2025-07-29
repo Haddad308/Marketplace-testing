@@ -23,9 +23,10 @@ const categories = CATEGORIES.map((cat) => cat.name);
 interface ProductFormProps {
 	mode: 'create' | 'edit';
 	initialData?: Product;
+	onProductCreated?: (productId: string) => void;
 }
 
-export default function ProductForm({ mode, initialData }: ProductFormProps) {
+export default function ProductForm({ mode, initialData, onProductCreated }: ProductFormProps) {
 	const { user } = useAuth();
 	const router = useRouter();
 	const [isSubmitting, setIsSubmitting] = useState(false);
@@ -312,8 +313,15 @@ export default function ProductForm({ mode, initialData }: ProductFormProps) {
 			setIsSubmitting(true);
 
 			if (mode === 'create') {
-				await createProduct(user.uid, formData);
+				const productId = await createProduct(user.uid, formData);
 				toast.success('Product created successfully!');
+				
+				// Call the callback with the created product ID
+				if (onProductCreated) {
+					onProductCreated(productId);
+					// Don't redirect automatically - let the user configure action buttons first
+					return;
+				}
 			} else if (mode === 'edit' && initialData) {
 				await updateProduct(initialData.id, formData);
 				toast.success('Product updated successfully!');

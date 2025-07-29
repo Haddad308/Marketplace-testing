@@ -5,7 +5,9 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 
+import MerchantDetailsCard from '@/components/MerchantDetailsCard';
 import WishlistLoginModal from '@/components/modals/WishlistLoginModal';
+import ProductActionButtons from '@/components/ProductActionButtons';
 import ProductDetailsSkeleton from '@/components/skeletons/ProductDetailsSkeleton';
 import { Button } from '@/components/ui/button';
 import { ProductMap } from '@/components/ui/product-map';
@@ -150,6 +152,9 @@ export default function ProductPage() {
 									{favorites.includes(product.id) ? 'Remove from wishlist' : 'Add to Wishlist'}
 								</Button>
 							</div>
+
+							{/* Product Action Buttons */}
+							<ProductActionButtons productId={product.id} />
 						</div>
 					</div>
 				</div>
@@ -161,6 +166,9 @@ export default function ProductPage() {
 						<p className="break-words text-gray-600">{product.description}</p>
 					</div>
 				</div>
+
+				{/* Merchant Details */}
+				<MerchantDetailsCard merchantId={product.merchantId} />
 
 				{/* Product Location Map */}
 				<div className="mt-8">

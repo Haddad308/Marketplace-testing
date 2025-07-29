@@ -3,6 +3,7 @@
 import { Calendar, Eye, LucideProps, Package, Plus, TrendingUp, Users } from 'lucide-react';
 import { ForwardRefExoticComponent, RefAttributes, useEffect, useState } from 'react';
 
+import MerchantDetailsManager from '@/components/MerchantDetailsManager';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useAuth } from '@/contexts/auth-context';
@@ -164,7 +165,7 @@ export default function MerchantDashboard() {
 				/>
 			</div>
 
-			{/* Recent Products */}
+			{/* Recent Products and Merchant Details */}
 			<div className="grid gap-6 lg:grid-cols-2">
 				<Card className="border-gray-700 bg-gray-800">
 					<CardHeader>
@@ -267,6 +268,9 @@ export default function MerchantDashboard() {
 					</CardContent>
 				</Card>
 			</div>
+
+			{/* Merchant Details Management */}
+			<MerchantDetailsManager />
 		</div>
 	);
 }

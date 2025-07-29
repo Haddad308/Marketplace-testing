@@ -3,6 +3,16 @@ import { NextResponse } from 'next/server';
 
 export async function POST(req: Request) {
 	try {
+		if (!adminAuth) {
+			return NextResponse.json(
+				{ 
+					exists: false, 
+					error: 'Firebase Admin not configured properly. Please check your environment variables.' 
+				}, 
+				{ status: 500 }
+			);
+		}
+
 		const { email } = await req.json();
 
 		const userRecord = await adminAuth.getUserByEmail(email);

@@ -3,6 +3,7 @@
 import { useParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
+import ActionButtonManager from '@/components/ActionButtonManager';
 import ProductForm from '@/components/product-form';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useAuth } from '@/contexts/auth-context';
@@ -85,7 +86,7 @@ export default function EditProductPage() {
 	}
 
 	return (
-		<div className="mx-auto max-w-4xl">
+		<div className="mx-auto max-w-4xl space-y-6">
 			<Card className="border-gray-700 bg-gray-800">
 				<CardHeader>
 					<CardTitle className="text-2xl text-white">Edit Product</CardTitle>
@@ -97,6 +98,9 @@ export default function EditProductPage() {
 					<ProductForm mode="edit" initialData={product} />
 				</CardContent>
 			</Card>
+			
+			{/* Action Buttons Management */}
+			<ActionButtonManager productId={productId} />
 		</div>
 	);
 }

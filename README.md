@@ -2,7 +2,66 @@ This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-
 
 ## Getting Started
 
-First, run the development server:
+### 1. Environment Setup
+
+First, copy the environment variables template:
+
+```bash
+cp .env.example .env.local
+```
+
+Then, fill in the required values in `.env.local`:
+
+#### ImageKit Configuration (Required for image uploads)
+
+1. Sign up for a free account at [ImageKit.io](https://imagekit.io/)
+2. Go to your [ImageKit Dashboard → Developer → API Keys](https://imagekit.io/dashboard/developer/api-keys)
+3. Copy your credentials and add them to `.env.local`:
+
+```env
+NEXT_PUBLIC_IMAGEKIT_PUBLIC_KEY=your_imagekit_public_key_here
+IMAGEKIT_PRIVATE_KEY=your_imagekit_private_key_here
+NEXT_PUBLIC_IMAGEKIT_URL_ENDPOINT=https://ik.imagekit.io/your_imagekit_id
+```
+
+⚠️ **Important**: Without ImageKit configuration, product image uploads will fail. The app will still work, but merchants won't be able to upload product images.
+
+#### Firebase Configuration (Required for database and authentication)
+
+1. Create a Firebase project at [Firebase Console](https://console.firebase.google.com/)
+2. Enable Firestore Database and Authentication
+3. For client-side config, go to **Project Settings → General → Your apps** and copy the config values
+4. For admin SDK, go to **Project Settings → Service Accounts → Generate new private key**
+5. Add all credentials to `.env.local`:
+
+```env
+# Firebase Admin SDK (server-side)
+FIREBASE_PRIVATE_KEY=your_firebase_private_key_here
+FIREBASE_CLIENT_EMAIL=your_firebase_client_email_here
+FIREBASE_PROJECT_ID=your_firebase_project_id_here
+
+# Firebase Client SDK (frontend)
+NEXT_PUBLIC_FIREBASE_API_KEY=your_firebase_api_key_here
+NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=your_firebase_auth_domain_here
+NEXT_PUBLIC_FIREBASE_PROJECT_ID=your_firebase_project_id_here
+NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=your_firebase_storage_bucket_here
+NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=your_firebase_messaging_sender_id_here
+NEXT_PUBLIC_FIREBASE_APP_ID=your_firebase_app_id_here
+```
+
+⚠️ **Important**: Both ImageKit and Firebase configurations are required for the app to function properly.
+
+### 2. Install Dependencies
+
+```bash
+npm install
+# or
+yarn install
+# or
+pnpm install
+```
+
+### 3. Run the Development Server
 
 ```bash
 npm run dev

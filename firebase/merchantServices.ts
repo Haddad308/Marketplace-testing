@@ -20,27 +20,49 @@ export async function createProduct(merchantId: string, productData: ProductForm
 
 		// Upload image if provided
 		if (productData.image) {
-			// Get ImageKit auth params
-			const authRes = await fetch('/api/imagekit-auth');
-			const auth = await authRes.json();
-			const formData = new FormData();
+			try {
+				// Get ImageKit auth params
+				const authRes = await fetch('/api/imagekit-auth');
+				
+				if (!authRes.ok) {
+					const errorData = await authRes.json();
+					console.warn('ImageKit not configured properly:', errorData.message);
+					throw new Error('Image upload service not available. Please configure ImageKit or use a different image hosting solution.');
+				}
+				
+				const auth = await authRes.json();
+				
+				// Check if auth response contains error
+				if (auth.error) {
+					throw new Error(auth.message || 'Failed to get ImageKit authentication');
+				}
 
-			formData.append('signature', auth.signature);
-			formData.append('expire', auth.expire.toString());
-			formData.append('token', auth.token);
-			formData.append('file', productData.image);
-			formData.append('fileName', `product_${Date.now()}`);
-			formData.append('publicKey', process.env.NEXT_PUBLIC_IMAGEKIT_PUBLIC_KEY!);
+				const formData = new FormData();
+				formData.append('signature', auth.signature);
+				formData.append('expire', auth.expire.toString());
+				formData.append('token', auth.token);
+				formData.append('file', productData.image);
+				formData.append('fileName', `product_${Date.now()}`);
+				formData.append('publicKey', process.env.NEXT_PUBLIC_IMAGEKIT_PUBLIC_KEY!);
 
-			const uploadRes = await fetch('https://upload.imagekit.io/api/v1/files/upload', {
-				method: 'POST',
-				body: formData,
-			});
+				const uploadRes = await fetch('https://upload.imagekit.io/api/v1/files/upload', {
+					method: 'POST',
+					body: formData,
+				});
 
-			if (!uploadRes.ok) throw new Error('Image upload failed');
+				if (!uploadRes.ok) {
+					const errorText = await uploadRes.text();
+					throw new Error(`Image upload failed: ${errorText}`);
+				}
 
-			const result = await uploadRes.json();
-			imageUrl = result.url;
+				const result = await uploadRes.json();
+				imageUrl = result.url;
+			} catch (imageError) {
+				console.error('Image upload error:', imageError);
+				// For now, we'll continue without the image rather than failing the entire product creation
+				// In production, you might want to use a fallback image service or require proper ImageKit setup
+				throw new Error(`Image upload failed: ${imageError instanceof Error ? imageError.message : 'Unknown error'}`);
+			}
 		}
 
 		// If discountedPrice is undefined, remove it from updateData
@@ -73,31 +95,51 @@ export async function updateProduct(productId: string, updates: Partial<ProductF
 	try {
 		const productRef = doc(db, 'products', productId);
 
-		const updateData: any = { ...updates };
+		const updateData: Record<string, unknown> = { ...updates };
 
 		// Handle image upload if a new image is provided
 		if (updates.image && updates.image instanceof File) {
-			// Get ImageKit auth params
-			const authRes = await fetch('/api/imagekit-auth');
-			const auth = await authRes.json();
-			const formData = new FormData();
+			try {
+				// Get ImageKit auth params
+				const authRes = await fetch('/api/imagekit-auth');
+				
+				if (!authRes.ok) {
+					const errorData = await authRes.json();
+					console.warn('ImageKit not configured properly:', errorData.message);
+					throw new Error('Image upload service not available. Please configure ImageKit or use a different image hosting solution.');
+				}
+				
+				const auth = await authRes.json();
+				
+				// Check if auth response contains error
+				if (auth.error) {
+					throw new Error(auth.message || 'Failed to get ImageKit authentication');
+				}
 
-			formData.append('signature', auth.signature);
-			formData.append('expire', auth.expire.toString());
-			formData.append('token', auth.token);
-			formData.append('file', updates.image);
-			formData.append('fileName', `product_${Date.now()}`);
-			formData.append('publicKey', process.env.NEXT_PUBLIC_IMAGEKIT_PUBLIC_KEY!);
+				const formData = new FormData();
+				formData.append('signature', auth.signature);
+				formData.append('expire', auth.expire.toString());
+				formData.append('token', auth.token);
+				formData.append('file', updates.image);
+				formData.append('fileName', `product_${Date.now()}`);
+				formData.append('publicKey', process.env.NEXT_PUBLIC_IMAGEKIT_PUBLIC_KEY!);
 
-			const uploadRes = await fetch('https://upload.imagekit.io/api/v1/files/upload', {
-				method: 'POST',
-				body: formData,
-			});
+				const uploadRes = await fetch('https://upload.imagekit.io/api/v1/files/upload', {
+					method: 'POST',
+					body: formData,
+				});
 
-			if (!uploadRes.ok) throw new Error('Image upload failed');
+				if (!uploadRes.ok) {
+					const errorText = await uploadRes.text();
+					throw new Error(`Image upload failed: ${errorText}`);
+				}
 
-			const result = await uploadRes.json();
-			updateData.image = result.url;
+				const result = await uploadRes.json();
+				updateData.image = result.url;
+			} catch (imageError) {
+				console.error('Image upload error:', imageError);
+				throw new Error(`Image upload failed: ${imageError instanceof Error ? imageError.message : 'Unknown error'}`);
+			}
 		} else {
 			// Remove the image field if no new image is provided
 			delete updateData.image;

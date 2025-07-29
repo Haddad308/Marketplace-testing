@@ -1,4 +1,5 @@
 import { User as FirebaseAuthUser } from 'firebase/auth';
+import { Timestamp } from 'firebase/firestore';
 
 export type Product = {
 	id: string;
@@ -15,10 +16,34 @@ export type Product = {
 	affiliateLink: string;
 	badge?: string;
 	merchantId: string;
-	createdAt: any;
-	updatedAt: any;
+	createdAt: Timestamp | any;
+	updatedAt: Timestamp | any;
 	isArchived?: boolean;
 	views?: number;
+	actionButtons?: ActionButton[];
+};
+
+export type ActionButton = {
+	id: string;
+	label: string;
+	url: string;
+	style: 'primary' | 'secondary' | 'success' | 'warning' | 'danger';
+	icon?: string;
+	isActive: boolean;
+	order: number;
+};
+
+export type MerchantDetails = {
+	id: string;
+	name: string;
+	description: string;
+	address: string;
+	phone: string;
+	email: string;
+	website?: string;
+	logo?: string;
+	createdAt: Timestamp | any;
+	updatedAt: Timestamp | any;
 };
 
 export interface User extends FirebaseAuthUser {
