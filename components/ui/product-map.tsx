@@ -24,6 +24,8 @@ export function ProductMap({ location, className }: ProductMapProps) {
 		// Clear inner HTML to fully reset container
 		if (mapRef.current) {
 			mapRef.current.innerHTML = '';
+			// Remove Leaflet's internal container reference
+			delete (mapRef.current as HTMLDivElement & { _leaflet_id?: number })._leaflet_id;
 		}
 
 		// Initialize Leaflet map
@@ -37,6 +39,12 @@ export function ProductMap({ location, className }: ProductMapProps) {
 				if (data && data.length > 0 && mapRef.current) {
 					const lat = Number.parseFloat(data[0].lat);
 					const lon = Number.parseFloat(data[0].lon);
+
+					// Double check that container is not already initialized
+					if ((mapRef.current as HTMLDivElement & { _leaflet_id?: number })._leaflet_id) {
+						console.warn('Map container still has _leaflet_id, forcing cleanup');
+						delete (mapRef.current as HTMLDivElement & { _leaflet_id?: number })._leaflet_id;
+					}
 
 					// Create map
 					const map = L.map(mapRef.current).setView([lat, lon], 13);
